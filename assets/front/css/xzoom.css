@@ -1,0 +1,147 @@
+/* Compatibility styles for frameworks like bootstrap, foundation e.t.c */
+.xzoom-source img, .xzoom-preview img, .xzoom-lens img {
+  display: block;
+  max-width: none;
+  max-height: none;
+  -webkit-transition: none;
+  -moz-transition: none;
+  -o-transition: none;
+  transition: none;
+}
+/* --------------- */
+
+
+/*
+#gallery-container{
+  position: relative;
+}
+
+#gallery-container .button-login-pb{
+  position: absolute;
+left: 0;
+top: 0;
+z-index: 999999;
+right: 0;
+bottom: 0;
+margin: auto;
+width: 100px;
+height: 40px;display: block; opacity: 1;
+}*/
+
+
+
+.img-thumbnail {
+    display: inline-block;
+    max-width: 100%;
+    width: 100%; position: relative;
+    height: auto;
+    padding: 4px;
+    line-height: 1.42857143;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    -webkit-transition: all .2s ease-in-out;
+    -o-transition: all .2s ease-in-out;
+    transition: all .2s ease-in-out;
+}
+
+
+/* xZoom Styles below */
+.xzoom-container.pointeventon{pointer-events: visible;}
+.xzoom-container { 
+     display: block;
+    pointer-events: none;
+    max-width: 410px;
+    margin: 0 auto;
+}
+
+
+
+.xzoom-thumbs {
+  text-align: center;
+  margin-bottom: 10px;
+  pointer-events: visible;
+}
+/*.xzoom-container .xzoom{width: 100%; height: 100%}*/
+
+/* Thumbs */
+.xzoom-gallery, .xzoom-gallery2, .xzoom-gallery3, .xzoom-gallery4, .xzoom-gallery5 {
+  border: 1px solid #cecece;
+  margin-left: 5px;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+.xzoom-head-padding{    float: left;
+    width: 43%;}
+.xzoom-source, .xzoom-hidden {
+  display: block;
+  position: relative;
+  float: none;
+  clear: both;  z-index: 99999;
+}
+
+/* Everything out of border is hidden */
+.xzoom-hidden {
+  overflow: hidden;
+}
+
+/* Preview */
+.xzoom-preview {
+  border: 1px solid #888;
+  background: #2f4f4f;
+  box-shadow: -0px -0px 10px rgba(0,0,0,0.50);    
+  z-index: 99999;
+}
+
+/* Lens */
+.xzoom-lens {
+  border: 1px solid #555;
+  box-shadow: -0px -0px 10px rgba(0,0,0,0.50);
+  cursor: crosshair;
+}
+
+/* Loading */
+.xzoom-loading {
+  background-position: center center;
+  background-repeat: no-repeat;
+  border-radius: 100%;
+  opacity: .7;
+  background: url(../images/xloading.gif);
+  width: 48px;
+  height: 48px;
+}
+
+/* Additional class that applied to thumb when it is active */
+.xactive {
+  -webkit-box-shadow: 0px 0px 3px 0px rgba(74,169,210,1);
+  -moz-box-shadow: 0px 0px 3px 0px rgba(74,169,210,1);
+  box-shadow: 0px 0px 3px 0px rgba(74,169,210,1); 
+  border: 1px solid #4aaad2;
+}
+
+/* Caption */
+.xzoom-caption {
+  position: absolute;
+  bottom: -43px;
+  left: 0;
+  background: #000;
+  width: 100%;
+  text-align: left;
+}
+
+.xzoom-caption span {
+  color: #fff;
+  font-family: Arial, sans-serif;
+  display: block;
+  font-size: 0.75em;
+  font-weight: bold;
+  padding: 10px;
+}
+@media all and (max-width:991px){
+  .xzoom-head-padding {
+      float: none;
+      width: 100%;
+      margin: 0 auto;
+  }
+  .gallery-container{margin-bottom: 30px;}
+}

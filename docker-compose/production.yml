@@ -1,0 +1,71 @@
+version: '3'
+
+networks:
+    rejoiz.ug:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+              - subnet: "172.16.0.0/16"
+
+services:
+    db.rejoiz.ug:
+        container_name: db.rejoiz.ug
+        image: mysql:5.7
+        command: --default-authentication-plugin=mysql_native_password
+        environment:
+            MYSQL_ROOT_PASSWORD : '3eauLaQT8zFMa8Qo7Y5Eiw'
+            MYSQL_ROOT_HOST : '%'
+        volumes:
+            - /opt/project/db.rejoiz.ug:/var/lib/mysql
+        ports:
+            - 15121:3306
+        networks:
+            rejoiz.ug:
+                ipv4_address: "172.16.0.2"
+        healthcheck:
+            test: "mysqladmin ping -h localhost"
+            interval: 1s
+            timeout: 1s
+            retries: 60
+
+    pma.rejoiz.ug:
+        container_name: pma.rejoiz.ug
+        image: phpmyadmin/phpmyadmin
+        environment:
+            PMA_HOST : db.rejoiz.ug
+            UPLOAD_LIMIT: 300000000
+        ports:
+            - 15122:80
+        links:
+            - db.rejoiz.ug:db
+        depends_on:
+            - db.rejoiz.ug
+        networks:
+            rejoiz.ug:
+                ipv4_address: "172.16.0.3"
+    web.rejoiz.ug:
+        container_name: web.rejoiz.ug
+        image: 1and1internet/ubuntu-16-apache-php-7.1
+        volumes:
+            - /opt/project/rejoiz.ug:/var/www/html
+        ports:
+            - 15180:8080
+        depends_on:
+            - search.rejoiz.ug
+        networks:
+            rejoiz.ug:
+                ipv4_address: "172.16.0.4"
+    search.rejoiz.ug:
+        container_name: search.rejoiz.ug
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.0.1
+        environment:
+            discovery.type : single-node
+        volumes:
+            - /opt/project/search.rejoiz.ug:/usr/share/elasticsearch/data
+        ports:
+            - 15200:9200
+            - 15300:9300
+        networks:
+            rejoiz.ug:
+                ipv4_address: "172.16.0.5"

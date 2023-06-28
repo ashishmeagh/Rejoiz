@@ -1,0 +1,317 @@
+@import url(https://fonts.googleapis.com/css?family=Poppins:400,500,300,600,700);
+/*Theme Colors*/
+/*bootstrap Color*/
+/*Normal Color*/
+/*Border radius*/
+/*Preloader*/
+
+.card-adm-icon {
+    background-position: 2px -1360px;
+}
+.commission-mkr-icon {
+    background-position: 1px -1295px;
+}
+
+table{font-size: 14px;}
+.main-all-current-promotions {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    background-color: #fff;
+    padding: 30px;
+    box-shadow: 0px 0px 12px #dcdcdc;
+    border-radius: 7px;
+    position: relative;
+}
+.main-all-current-promotions-right {
+    padding-left: 30px;
+}
+.title-promotions-txt {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+.date-tm {
+    font-size: 12px;
+    display: inline-block;
+    padding: 3px 10px;
+    background-color: #666;
+    border-radius: 30px;
+    color: #fff;
+}
+.promotions-ul li {
+    display: block;
+    margin-bottom: 5px;
+    position: relative;
+    padding-left: 15px;
+}
+.promotions-ul li:after {
+    display: block;
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #ff8ba3;
+    position: absolute;
+    left: 0px;
+    top: 5px;
+}
+
+
+.navbar-default.sidebar.newicon-add .nav > li .menuList .myorder-mkr-icon{
+      background-position: 0 -722px;
+}
+
+.navbar-default.sidebar.newicon-add .nav > li {position: relative;}
+.navbar-default.sidebar.newicon-add .nav > li .defualt-icon-sdbr{
+  display: block;
+  width: 30px;
+  height: 30px;
+  position: absolute;
+  left: 16px;
+  top: 9px;
+  background-image:url(../../images/sprite-icon-maker.png);
+  background-repeat: no-repeat;
+}
+.myorder-retailer-icon{background-position: 2px -248px;}
+.dashboard-mkr-icon{background-position: 1px -1px;}
+.settings-mkr-icon{background-position: 1px -49px;}
+.manage-prodt-mkr-icon{background-position: 3px -102px;}
+.manage-brands-mkr-icon{background-position: 2px -148px;}
+.manage-catalogs-mkr-icon{background-position: 2px -199px;}
+.sale-order-mkr-icon{background-position: 2px -247px;}
+.cancel-order-re-mkr-icon{background-position: 2px -303px;}
+.canceled-order-mkr-icon{background-position: 2px -373px;}
+.notifications-mkr-icon{background-position: 2px -419px;}
+.shop-mkr-icon{background-position: 2px -563px;}
+.shop-mkusrr-icon{background-position: 2px -863px;}
+.main-nm-retailer.space-bottom{margin-bottom: 5px;}
+.myorder-mkr-icon{background-position: 0 -715px;}
+
+.manage-add-mkr-icon{background-position: 1px -1174px;}
+
+.upload-mkr-icon{background-position: 2px -1241px;}
+.commission-mkr-icon {
+    background-position: 1px -1295px;
+}
+
+.navbar-top-links > li > a .color-fnts{
+  color: #666;
+  font-family: 'Open Sans', sans-serif;
+}
+.navbar-top-links > li > a .color-fnts span{
+  display: inline-block;
+   color: #333;
+}
+
+.promotions-mkr-icon{background-position: 2px -1113px;}
+.image-mkr-icon{background-position: 2px -914px;}
+
+.sidebar #side-menu .user-pro ul a .hide-menu{
+    /*margin-top: 7px;*/
+    display: inline-block;
+}
+
+
+.preloader {
+  width: 100%;
+  height: 100%;
+  top: 0px;
+  position: fixed;
+  z-index: 99999;
+  background: #fff;
+}
+.preloader .cssload-speeding-wheel {
+  position: absolute;
+  top: calc(50% - 3.5px);
+  left: calc(50% - 3.5px);
+}
+/* This is for popins font for firefox */
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 400;
+  src: url(https://fonts.gstatic.com/s/poppins/v1/2fCJtbhSlhNNa6S2xlh9GyEAvth_LlrfE80CYdSH47w.woff2) format('woff2');
+  unicode-range: U+02BC, U+0900-097F, U+1CD0-1CF6, U+1CF8-1CF9, U+200B-200D, U+20A8, U+20B9, U+25CC, U+A830-A839, U+A8E0-A8FB;
+}
+/* This is for popins font for firefox */
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 400;
+  src: url(https://fonts.gstatic.com/s/poppins/v1/UGh2YG8gx86rRGiAZYIbVyEAvth_LlrfE80CYdSH47w.woff2) format('woff2');
+  unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF, U+2C60-2C7F, U+A720-A7FF;
+}
+/* This is for popins font for firefox */
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 400;
+  src: url(https://fonts.gstatic.com/s/poppins/v1/yQWaOD4iNU5NTY0apN-qj_k_vArhqVIZ0nv9q090hN8.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+}
+/*Just change your choise color here its theme Colors*/
+body {
+  background: #f8f8f8;
+}
+/*Top Header Part*/
+
+
+
+
+
+
+
+.top-left-part {
+  background: #fff;
+}
+.logo-new-blick img{
+    margin: 0px 0 0 18px;
+    text-align: center;
+    display: block; height: 54px;
+}
+.logo i {
+  color: #ffffff;
+}
+.navbar-header {
+  background: #fff;    border-bottom: 1px solid #d9dfe6;
+}
+.navbar-top-links > li > a {
+  color: #333;
+}
+/*Right panel*/
+.right-sidebar .rpanel-title {
+  background: #214393;
+}
+/*Bread Crumb*/
+.bg-title .breadcrumb .active {
+  color: #666;
+}
+.form-horizontal .control-label{
+      font-weight: normal;
+      color: #515151;
+      font-size: 14px;
+      letter-spacing: 0.2px;
+}
+/*Sidebar*/
+.sidebar {
+    background-color: #f8f8f8;
+  box-shadow: 1px 0px 20px rgba(0, 0, 0, 0.08);
+}
+.sidebar .label-custom {
+  background: #01c0c8;
+}
+
+#side-menu li a i{
+  position: absolute;
+  display: block;
+  left: 11px;
+  top: 16px;
+}
+#side-menu li a {
+  position: relative;
+    padding-left: 50px;
+    /*min-height: 50px;*/
+    color: #3e3e3e;
+    letter-spacing: 0;
+    border-left: 0px solid #fff;
+    font-weight: normal;
+}
+#side-menu > li > a:hover,
+#side-menu > li > a:focus {
+    color: #F06292;
+    font-weight: normal;
+    background-color: #fff;
+}
+#side-menu > li > a:hover i,
+#side-menu > li > a:focus i {
+  color: #555555;
+}
+#side-menu > li > a.active {
+    border-left: none;
+    color: #F06292;
+    /*font-weight: 500;*/
+    background-color: #fff;
+}
+#side-menu > li > a.active i {
+  color: #666;
+}
+#side-menu ul > li > a:hover {
+  color: #555555;
+}
+.table.table-striped.table-bordered.view-porifile-table>tbody>tr>td, .table.table-striped.table-bordered.view-porifile-table>tbody>tr>th{
+    border: none;
+}
+
+#side-menu ul > li > a.active {
+  color: #F06292;
+}
+.imgview-profile-adm{
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 auto;
+}
+.profile-txtnw-adm {
+    font-size: 19px;
+    text-align: center;
+    margin-bottom: 30px;    margin-top: 5px;
+}
+.imgview-profile-adm img{
+  width: 100%;
+  height: 100%;
+}
+.nav > li > a:hover, .nav > li > a:focus{
+      background-color: #f0f3f8;
+}
+.sidebar #side-menu .user-pro .nav-second-level a:hover {
+  color: #F06292;
+}
+.fix-sidebar .top-left-part {
+  background: #214393;
+}
+/*themecolor*/
+.bg-theme {
+  background-color: #fb9678 !important;
+}
+.bg-theme-dark {
+  background-color: #01c0c8 !important;
+}
+/*Chat widget*/
+.chat-list .odd .chat-text {
+  background: #214393;
+}
+/*Button*/
+.btn-custom {
+  background: #214393;
+  border: 1px solid #214393;
+  color: #ffffff;
+}
+.btn-custom:hover {
+  background: #214393;
+  opacity: 0.8;
+  color: #ffffff;
+  border: 1px solid #214393;
+}
+/*Custom tab*/
+.customtab li.active a,
+.customtab li.active a:hover,
+.customtab li.active a:focus {
+  border-bottom: 2px solid #214393;
+  color: #214393;
+}
+.tabs-vertical li.active a,
+.tabs-vertical li.active a:hover,
+.tabs-vertical li.active a:focus {
+  background: #214393;
+  border-right: 2px solid #214393;
+}
+/*Nav-pills*/
+.nav-pills > li.active > a,
+.nav-pills > li.active > a:focus,
+.nav-pills > li.active > a:hover {
+  background: #214393;
+  color: #ffffff;
+}

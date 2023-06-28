@@ -1,0 +1,78 @@
+.main-nm-retailer.space-bottom{margin-bottom: 5px;}
+
+
+.image-product-tbls{
+  width: 60px;
+  height: 60px;
+}
+.image-product-tbls img{
+  width: 100%; height: 100%;
+}
+.title-td{
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+.sbtitle-td {
+    font-size: 14px;
+    width: 200px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/*.form-group{
+  width: 100% !important;
+}*/
+.modal-footer .form-group{
+  margin-bottom: 0;
+}
+.img-my-shop-prdcs img{
+  width: 100%;
+  height: 100%;
+}
+.img-my-shop-prdcs{
+  margin-bottom: 40px;
+  height: 250px;
+}
+.img-shop-tbl {
+    width: 70px;
+}
+.img-shop-tbl img{
+  width: 100%;
+}
+.white-box{width: 100%; overflow:hidden;}
+.table>thead>tr>th{
+  vertical-align: middle !important;
+  font-size: 14px;
+}
+.inline-blk-jst input{
+width: 30%;
+display: inline-block;
+}
+
+.switchmaindv-title{float: left;}
+.switchmaindv-right{float: right;}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@media all and (max-width:600px){
+
+}

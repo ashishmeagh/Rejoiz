@@ -1,0 +1,1679 @@
+<?php
+namespace App\Common\Services;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+
+use App\Common\Services\SearchService;
+use App\Models\UserModel;
+use App\Models\RepresentativeMakersModel;
+
+use App\Models\FavoriteModel;
+use App\Models\MakerModel;
+use App\Models\RoleModel;
+use App\Models\RoleUsersModel;
+use App\Models\ShopImagesModel;
+use App\Models\ShopSettings;
+use App\Models\ProductsModel;
+use App\Models\ProductsSubCategoriesModel;
+use App\Models\CustomerFavoriteModel;
+
+use Session;
+use Paginate;
+use Sentinel;
+use DB;
+
+use Illuminate\Pagination\Paginator;
+use Illuminate\Pagination\LengthAwarePaginator;
+
+use Elasticsearch\Client;
+use Elasticsearch\ClientBuilder;
+
+class ElasticSearchService
+{
+    public function __construct(
+        SearchService $SearchService,
+        UserModel     $UserModel,
+        RepresentativeMakersModel $RepresentativeMakersModel,
+        FavoriteModel $FavoriteModel,
+        MakerModel $MakerModel,
+        RoleModel $RoleModel,
+        RoleUsersModel $RoleUsersModel,
+        ShopImagesModel $ShopImagesModel,
+        ShopSettings $ShopSettings,
+        ProductsModel $ProductsModel,
+        ProductsSubCategoriesModel $ProductsSubCategoriesModel,
+        CustomerFavoriteModel $CustomerFavoriteModel
+
+    )
+    {
+        $this->SearchService              = $SearchService;
+        $this->UserModel                  = $UserModel;
+        $this->ProductsSubCategoriesModel = $ProductsSubCategoriesModel;
+        $this->RepresentativeMakersModel  = $RepresentativeMakersModel;
+        $this->FavoriteModel              = $FavoriteModel;
+        $this->MakerModel                 = $MakerModel;
+        $this->RoleModel                  = $RoleModel;
+        $this->RoleUsersModel             = $RoleUsersModel;
+        $this->ShopImagesModel            = $ShopImagesModel;
+        $this->ProductsModel              = $ProductsModel;
+        $this->ShopSettings               = $ShopSettings;
+        $this->CustomerFavoriteModel      = $CustomerFavoriteModel;
+    }
+
+    public function reindex_products(Request $request, $isZipRequest = false)
+    {   
+       
+        /* Index Elastic Search */
+        ini_set('max_execution_time', 0);
+        $elastic_host = env("ELASTIC_HOST");
+
+        $elasticsearch = ClientBuilder::create()
+            ->setHosts([$elastic_host])
+            ->build();
+
+        foreach (ProductsModel::cursor() as $product){
+            $final_search_arr = $product->toSearchArray();
+            $sub_category_arr = $product->productSubCategories->toArray();
+            $sub_cat_arr = [];
+            $sub_cat_name_arr = [];
+            $sub_cat_plurls = [];
+
+            foreach ($sub_category_arr as $sub_cat_key => $sub_cat_value) {
+                $sub_category_name = get_subcategory_name($sub_cat_value['sub_category_id']);
+                $sub_cat_name_arr[] = $sub_category_name;
+                $sub_cat_arr[] = $sub_cat_value['sub_category_id'];
+                $sub_cat_plurls[] = str_plural($sub_category_name);
+            }
+
+            $vendor_id = $product->user_id;
+
+            $is_vendor_active_obj = $this->UserModel->select('status')
+                ->where('id', $vendor_id)
+                ->first();
+
+            if (isset($is_vendor_active_obj)) {
+                $is_vendor_active = $is_vendor_active_obj->toArray();
+            } else {
+                $is_vendor_active['status'] = 0;
+            }
+
+            //dd($vendor_id);
+            $vendor_minimum_obj = $this->ShopSettings->select('first_order_minimum',                                                   'shop_lead_time')
+                                                      ->where('maker_id', $vendor_id)
+                                                      ->first();
+
+            if (isset($vendor_minimum_obj)) {
+                $vendor_minimum = $vendor_minimum_obj->toArray();
+            } else {
+                $vendor_minimum['first_order_minimum'] = 0;
+                $vendor_minimum['shop_lead_time'] = 0;
+            }
+
+            if(isset($vendor_minimum['shop_lead_time'])){
+               if($vendor_minimum['shop_lead_time']!="0")
+                {
+                    $lead_time_min = isset($vendor_minimum['shop_lead_time'][0])?intval(explode("-",$vendor_minimum['shop_lead_time'])[0]):2;
+
+                    $lead_time_max = isset($vendor_minimum['shop_lead_time'][1])?intval(explode("-",$vendor_minimum['shop_lead_time'])[1]):4;
+                }
+            }
+
+            $final_search_arr['lead_time_min'] = isset($lead_time_min)?intval($lead_time_min):0;
+
+            $final_search_arr['lead_time_max'] = isset($lead_time_max)?intval($lead_time_max):0;
+
+            $final_search_arr['vendor_minimum'] = isset($vendor_minimum['first_order_minimum']) ? intval($vendor_minimum['first_order_minimum']) : 0;
+
+            $final_search_arr['shipping_type'] = isset($final_search_arr['shipping_type'])? intval($final_search_arr['shipping_type']):0;
+
+            $final_search_arr['is_vendor_active'] = isset($is_vendor_active['status']) ? intval($is_vendor_active['status']) : 0;
+            $final_search_arr['category_name'] = isset($product->categoryDetails->category_name) ? $product->categoryDetails->category_name : null;
+
+            $final_search_arr['is_category_set'] = isset($product->categoryDetails->category_name) ? $product->categoryDetails->category_name : null;
+
+            $final_search_arr['brand_name'] = isset($product->brand_details->brand_name) ? $product->brand_details->brand_name : null;
+            $final_search_arr['created_at_formatted'] = strtotime($final_search_arr['created_at']);
+            $final_search_arr['updated_at_formatted'] = strtotime($final_search_arr['updated_at']);
+            $final_search_arr['unit_wholsale_price'] = floatval($final_search_arr['unit_wholsale_price']);
+            $final_search_arr['retail_price'] = floatval($final_search_arr['retail_price']);
+            $final_search_arr['available_qty'] = floatval($final_search_arr['available_qty']);
+            $final_search_arr['is_active'] = intval($final_search_arr['is_active']);
+            $final_search_arr['previous_status'] = intval($final_search_arr['is_active']);
+            $final_search_arr['product_complete_status'] = intval($final_search_arr['product_complete_status']);
+
+            $final_search_arr['product_status'] = intval($final_search_arr['product_status']);
+
+            $final_search_arr['sub_cat_arr'] = $this->clean_array($sub_cat_arr);
+            $final_search_arr['sub_cat_plural_arr'] = $this->clean_array($sub_cat_plurls);
+
+            $final_search_arr['sub_cat_name_arr'] = $this->clean_array($sub_cat_name_arr);
+            $final_search_arr['cat_name_plural'] = isset($final_search_arr['category_name']) ? str_plural($final_search_arr['category_name']) : '';
+
+            $final_search_arr['product_name_plural'] = isset($final_search_arr['product_name']) ? str_plural($final_search_arr['product_name']) : '';
+
+            $final_search_arr['category_name_alphanumeric_only'] = preg_replace("/[^a-zA-Z0-9]+/", "", $final_search_arr['category_name']);
+            $final_search_arr['brand_name_alphanumeric_only'] = preg_replace("/[^a-zA-Z0-9]+/", "", $final_search_arr['brand_name']);
+            $final_search_arr['product_name_alphanumeric_only'] = preg_replace("/[^a-zA-Z0-9]+/", "", $final_search_arr['product_name']);
+                //dd($final_search_arr);
+            try {
+                $elasticsearch->index(
+                    [
+                        'index' => $product->getSearchIndex(),
+                        'type' => $product->getSearchType(),
+                        'id' => $product->getKey(),
+                        'body' => $final_search_arr,
+                    ]
+                );
+                //dd($product->getSearchType());
+            } catch (\Exception $e) {
+                //dump($final_search_arr);
+                echo $e->getMessage();
+            }
+                    // dump($final_search_arr);            
+        }
+
+        if ($isZipRequest != false) {
+            return true;
+        } else {
+            return 'success';
+            dd("Indexing Successful");
+        }
+    }
+
+    public function zip_reindex_products($isZipRequest = false)
+    {   
+        //dd($request);
+        /* Index Elastic Search */
+        ini_set('max_execution_time', 0);
+        $elastic_host = env("ELASTIC_HOST");
+
+        $elasticsearch = ClientBuilder::create()
+            ->setHosts([$elastic_host])
+            ->build();
+
+        foreach (ProductsModel::cursor() as $product) {
+            $final_search_arr = $product->toSearchArray();
+            $sub_category_arr = $product->productSubCategories->toArray();
+            $sub_cat_arr = [];
+            $sub_cat_name_arr = [];
+            $sub_cat_plurls = [];
+
+            foreach ($sub_category_arr as $sub_cat_key => $sub_cat_value) {
+                $sub_category_name = get_subcategory_name($sub_cat_value['sub_category_id']);
+                $sub_cat_name_arr[] = $sub_category_name;
+                $sub_cat_arr[] = $sub_cat_value['sub_category_id'];
+                $sub_cat_plurls[] = str_plural($sub_category_name);
+            }
+
+            $vendor_id = $product->user_id;
+
+            $is_vendor_active_obj = $this->UserModel->select('status')
+                ->where('id', $vendor_id)
+                ->first();
+
+            if (isset($is_vendor_active_obj)) {
+                $is_vendor_active = $is_vendor_active_obj->toArray();
+            } else {
+                $is_vendor_active['status'] = 0;
+            }
+
+            $final_search_arr['is_vendor_active'] = isset($is_vendor_active['status']) ? intval($is_vendor_active['status']) : 0;
+            $final_search_arr['category_name'] = isset($product->categoryDetails->category_name) ? $product->categoryDetails->category_name : null;
+
+            $final_search_arr['is_category_set'] = isset($product->categoryDetails->category_name) ? $product->categoryDetails->category_name : null;
+
+            $final_search_arr['brand_name'] = isset($product->brand_details->brand_name) ? $product->brand_details->brand_name : null;
+            $final_search_arr['created_at_formatted'] = strtotime($final_search_arr['created_at']);
+            $final_search_arr['updated_at_formatted'] = strtotime($final_search_arr['updated_at']);
+            $final_search_arr['unit_wholsale_price'] = floatval($final_search_arr['unit_wholsale_price']);
+            $final_search_arr['retail_price'] = floatval($final_search_arr['retail_price']);
+            $final_search_arr['available_qty'] = floatval($final_search_arr['available_qty']);
+            $final_search_arr['is_active'] = intval($final_search_arr['is_active']);
+            $final_search_arr['previous_status'] = intval($final_search_arr['is_active']);
+            $final_search_arr['product_complete_status'] = intval($final_search_arr['product_complete_status']);
+
+            $final_search_arr['product_status'] = intval($final_search_arr['product_status']);
+
+            $final_search_arr['sub_cat_arr'] = $this->clean_array($sub_cat_arr);
+            $final_search_arr['sub_cat_plural_arr'] = $this->clean_array($sub_cat_plurls);
+
+            $final_search_arr['sub_cat_name_arr'] = $this->clean_array($sub_cat_name_arr);
+            $final_search_arr['cat_name_plural'] = isset($final_search_arr['category_name']) ? str_plural($final_search_arr['category_name']) : '';
+
+            $final_search_arr['product_name_plural'] = isset($final_search_arr['product_name']) ? str_plural($final_search_arr['product_name']) : '';
+
+            $final_search_arr['category_name_alphanumeric_only'] = preg_replace("/[^a-zA-Z0-9]+/", "", $final_search_arr['category_name']);
+            $final_search_arr['brand_name_alphanumeric_only'] = preg_replace("/[^a-zA-Z0-9]+/", "", $final_search_arr['brand_name']);
+            $final_search_arr['product_name_alphanumeric_only'] = preg_replace("/[^a-zA-Z0-9]+/", "", $final_search_arr['product_name']);
+                // dd($final_search_arr);
+            try {
+                $elasticsearch->index(
+                    [
+                        'index' => $product->getSearchIndex(),
+                        'type' => $product->getSearchType(),
+                        'id' => $product->getKey(),
+                        'body' => $final_search_arr,
+                    ]
+                );
+            } catch (\Exception $e) {
+                //dump($final_search_arr);
+                echo $e->getMessage();
+            }
+                    // dump($final_search_arr);            
+        }
+
+        if ($isZipRequest != false) {
+            return true;
+        } else {
+            return 'success';
+            dd("Indexing Successful");
+        }
+    }
+
+    public function clean_array($arr_tmp = [])
+    {
+        $tmp = json_encode(array_filter($arr_tmp));
+        // return json_decode($tmp,true);
+        return $tmp;
+    }
+
+    public function flush_index_products()
+    {
+        $elastic_host = env("ELASTIC_HOST");
+        $elastic_index = env("ELASTIC_INDEX_NAME");
+
+        $elasticsearch = ClientBuilder::create()
+            ->setHosts([$elastic_host])
+            ->build();
+
+        $params = ['index' => $elastic_index];
+        $response = $elasticsearch->indices()->delete($params);
+
+       //dd($response['acknowledged']);
+
+        return $response['acknowledged'];
+    }
+
+    public function search(Request $request, $per_page = 12)
+    {
+        $elastic_host  = env("ELASTIC_HOST");
+        $elastic_index = env("ELASTIC_INDEX_NAME");
+        $category_id_arr = [];
+
+        $user_id = 0;
+        $user = Sentinel::check();
+
+        if ($user) {
+            $user_id = $user->id;
+        }
+
+        $client = ClientBuilder::create()->setHosts([$elastic_host])->build();
+        $current_page = $request->input('page');
+
+        /*  Converting Negative to Positive */
+        $current_page = abs(intval($current_page));
+
+        $page_offset = 0;
+
+        if ($current_page == null && $current_page <= 0) {
+            $current_page = 1;
+        }
+
+        $search_term = $request->input('search_term');
+        if ($search_term == null) {
+            $search_term = '';
+        }
+
+        $category_id         = $request->input('category_id');
+        $subcategory_id      = $request->input('subcategory');
+        $vendor_id           = $request->input('vendor_id');
+        $brand_id            = $request->input('brand_id');
+        $low_price           = $request->input('price:low');
+        $high_price          = $request->input('price:high');
+        $vendor_minimum_high = $request->input('vendor_minimum_high');
+        $vendor_minimum_low  = $request->input('vendor_minimum_low');
+        $free_shipping       = $request->input('free_shipping');
+        $percent_of          = $request->input('percent_of');
+        $doller_of           = $request->input('doller_of');
+        $lead_time_min       = $request->input('lead_time_min');
+        $lead_time_max       = $request->input('lead_time_max');
+        $brands              = $request->input('brands');
+        $filter              = $request->input('category');
+        $initial_search      = $request->input('name');
+        
+        /* getting and converting category id array into array*/
+        
+        $temp_category_id_arr = $request->input('category_id_arr');
+        
+        if(isset($temp_category_id_arr))
+        {
+         $temp_category_id_arr = explode(',',$temp_category_id_arr);
+         $temp_category_id_arr = str_replace('"','',$temp_category_id_arr);
+         $temp_category_id_arr = str_replace(']','',$temp_category_id_arr);
+         $temp_category_id_arr = str_replace('[','',$temp_category_id_arr);
+         $category_id_arr = $temp_category_id_arr;
+        }
+
+        if(isset($category_id))
+        {
+            unset($category_id_arr);
+        }
+
+        if(isset($lead_time_min) && isset($lead_time_max))
+        {
+            $lead_time_min = intval($lead_time_min);
+            $lead_time_max = intval($lead_time_max);
+        }
+
+
+        if(isset($vendor_minimum_low) && isset($vendor_minimum_high))
+        {
+            $vendor_minimum_low = intval($vendor_minimum_low);
+            $vendor_minimum_high = intval($vendor_minimum_high);
+        }
+
+        if(isset($low_price) && isset($high_price))
+        {
+            $low_price = intval($low_price);
+            $high_price = intval($high_price);
+        }
+
+        if(isset($free_shipping))
+        {
+            $free_shipping = intval($free_shipping);
+        }
+
+        if(isset($percent_of))
+        {
+            $percent_of = intval($percent_of);
+        }
+
+        if(isset($doller_of))
+        {
+            $doller_of = intval($doller_of);
+        }
+
+
+
+
+
+        
+
+        // $obj_active_users =   UserModel::select(DB::raw('users'.'.id as id'))
+        //                          ->join('makers','makers'.'.user_id','=','users'.'.id')
+        //                          ->where('users'.'.status',1)->get();
+
+        $obj_active_users = MakerModel::select(['user_id'])->leftJoin('users','makers'.'.user_id','=','users'.'.id')->where('users'.'.status',1)->get();
+
+        $obj_active_users = $this->MakerModel
+        ->whereHas('user_details',function($q){
+            return $q->where('status',1);
+        })->pluck('user_id');
+
+        
+        $active_users = array();
+        $active_users_ids = array();
+
+        if(isset($obj_active_users))
+        {
+            $temp_active_users = $obj_active_users->toArray();
+
+            $active_users = array_values($temp_active_users);
+        }
+
+        if(count($active_users)>0)
+        {
+            foreach ($active_users as $key => $value) {
+                if(isset($value['id']))
+                {    
+                    array_push($active_users_ids,$value['id']);
+                } 
+            }
+        }
+        
+
+        $search_param = [
+            'index' => $elastic_index,
+            'body' => [
+                'query' => [
+                    'bool' => [
+                        'must' => [
+                            ['term' => ["is_active" => 1]],
+                            ['term' => ["is_vendor_active" => 1]],
+                            ['term' => ["product_complete_status" => 4]],
+                            ['term' => ["is_deleted" => 0]],
+                            ['term' => ["product_status" => 1]],
+                            ['terms'=> ["user_id"=>$active_users_ids]]
+                        ],
+                        'must_not' => [
+                            ['terms' => ["product_complete_status" => [1, 2, 3]]],
+                            ['terms' => ["is_active" => [0, 2]]],
+                            ['terms' => ["is_deleted" => [1]]],
+                            ['terms' => ["product_status" => [0]]]
+                        ]
+                    ]
+                ]
+
+            ],
+            /*'sort' => [
+                ["updated_at_formatted" => ["order" => "desc"]]
+            ]*/
+        ];
+
+        
+        if(isset($vendor_id))
+        {
+            $vendor_id = intval(base64_decode($vendor_id));
+            $search_param['body']['query']['bool']['must'][] = ["term" =>  ["user_id" => $vendor_id]];
+
+            $search_param['body']['sort'] = [
+                ["updated_at_formatted" => ["order" => "desc"]]
+            ];
+        }    
+
+
+         if(isset($brands) && sizeof($brands)>0)
+        {  
+            $brand_arr = [];
+            $brands = explode(',', $brands[0]);
+
+            
+            if($brands[0]!='')
+            {   
+                for($i=0;$i<sizeof($brands);$i++)
+                {   
+                $filter_brand_id = intval($brands[$i]);
+                
+                array_push($brand_arr,$filter_brand_id);
+                }
+                $search_param['body']['query']['bool']['must'][] = ['terms' => ["brand" => $brand_arr]];
+            }
+        }   
+
+        if(isset($category_id_arr) && count($category_id_arr)>0)
+        {
+        
+            $search_param['body']['query']['bool']['must'][] = ['terms' => ["category_id" => $category_id_arr]];
+        }
+
+        if(isset($category_id))
+        {   
+           
+            $category_id = intval(base64_decode($category_id));
+            $search_param['body']['query']['bool']['must'][] = ["term" =>  ["category_id" => $category_id]];
+            //dd($search_param);
+        }       
+
+        if(isset($subcategory_id))
+        {
+            $subcategory_id = intval(base64_decode($subcategory_id));
+            
+
+            $sub_cat_name =  get_subcategory_name($subcategory_id);
+            // $search_param['body']['query']['bool']['must'][] = ['terms' =>  ["sub_cat_arr" => [$subcategory_id]]];
+            
+            $search_param['body']['query']['bool']['must'][] = ["term" =>  ["category_id" => $category_id]];
+            
+            $search_param['body']['query']['bool']['must'][] = ['match_phrase' => ["sub_cat_name_arr" => $sub_cat_name]];
+
+        }  
+
+    
+        if(isset($low_price) && isset($high_price))
+        {
+            $user = \Sentinel::check();
+           
+            if($user && $user->inRole('maker'))
+            {   
+                  if($low_price==100)
+                 {
+                    $search_param['body']['query']['bool']['must'][] = ['range'=> ["retail_price" => ["gte"=> $low_price]]];
+                 }
+                 else
+                 {
+                    $search_param['body']['query']['bool']['must'][] = ['range'=> ["retail_price" => ["gte"=> $low_price,"lte"=>$high_price]]];
+                 }
+                 
+
+                 $search_param['body']['sort'] = [
+                ["retail_price" => ["order" => "asc"]]
+                ];
+
+            }
+
+
+            else if($user && $user->inRole('customer'))
+            {   
+                  if($low_price==100)
+                 {
+                    $search_param['body']['query']['bool']['must'][] = ['range'=> ["retail_price" => ["gte"=> $low_price]]];
+                 }
+                 else
+                 {
+                    $search_param['body']['query']['bool']['must'][] = ['range'=> ["retail_price" => ["gte"=> $low_price,"lte"=>$high_price]]];
+                 }
+                 
+
+                 $search_param['body']['sort'] = [
+                ["retail_price" => ["order" => "asc"]]
+                ];
+
+            }
+
+
+            else if($user && $user->inRole('influencer'))
+            {   
+                  if($low_price==100)
+                 {
+                    $search_param['body']['query']['bool']['must'][] = ['range'=> ["retail_price" => ["gte"=> $low_price]]];
+                 }
+                 else
+                 {
+                    $search_param['body']['query']['bool']['must'][] = ['range'=> ["retail_price" => ["gte"=> $low_price,"lte"=>$high_price]]];
+                 }
+                 
+
+                 $search_param['body']['sort'] = [
+                ["retail_price" => ["order" => "asc"]]
+                ];
+
+            }
+
+
+            else if($user)
+            {
+                
+                 if($low_price==100)
+                 {
+                    $search_param['body']['query']['bool']['must'][] = ['range'=> ["unit_wholsale_price" => ["gte"=> $low_price]]];
+                 }
+                 else
+                 {
+                    $search_param['body']['query']['bool']['must'][] = ['range'=> ["unit_wholsale_price" => ["gte"=> $low_price,"lte"=>$high_price]]];
+                 }
+
+                $search_param['body']['sort'] = [
+                ["unit_wholsale_price" => ["order" => "asc"]]
+                ]; 
+            }
+            else
+            {     
+                 if($low_price==100)
+                 {
+                    $search_param['body']['query']['bool']['must'][] = ['range'=> ["retail_price" => ["gte"=> $low_price]]];
+                 }
+                 else
+                 {
+                    $search_param['body']['query']['bool']['must'][] = ['range'=> ["retail_price" => ["gte"=> $low_price,"lte"=>$high_price]]];
+                 }
+                 
+                 
+                 $search_param['body']['sort'] = [
+                ["retail_price" => ["order" => "asc"]]
+                ];
+            } 
+
+           
+
+        }
+
+        
+        if(isset($vendor_minimum_low) && isset($vendor_minimum_high))
+        {   
+            if($vendor_minimum_high==0)
+            {
+                $search_param['body']['query']['bool']['must'][] = ["term" =>  ["vendor_minimum" => 0]];
+            }
+            
+            elseif($vendor_minimum_low==301)
+            {
+                $search_param['body']['query']['bool']['must'][] = ['range'=> ["vendor_minimum" => ["gte"=> $vendor_minimum_low]]];
+            }
+            else
+            {
+            $search_param['body']['query']['bool']['must'][] = ['range'=> ["vendor_minimum" => ["gte"=> $vendor_minimum_low,"lte"=>$vendor_minimum_high]]];
+            }
+        }
+
+        if(isset($lead_time_min) && isset($lead_time_max))
+        {
+            $search_param['body']['query']['bool']['must'][] = ["term" =>  ["lead_time_min" => $lead_time_min]];
+
+            $search_param['body']['query']['bool']['must'][] = ["term" =>  ["lead_time_max" => $lead_time_max]];
+        }  
+              
+
+        if(isset($percent_of) && isset($doller_of) && isset($free_shipping))
+        {
+            $search_param['body']['query']['bool']['must'][] = ['terms' => ["shipping_type" => [1,2,3]]];
+           /* dd($search_param);*/
+
+        }
+
+       else if(isset($percent_of) && isset($doller_of))
+        {  
+            $search_param['body']['query']['bool']['must'][] = ['terms' => ["shipping_type" => [2,3]]];
+
+
+        }
+
+        else if(isset($free_shipping) && isset($doller_of))
+        {
+            $search_param['body']['query']['bool']['must'][] = ['terms' => ["shipping_type" => [1,3]]];
+        }
+
+        else if(isset($free_shipping) && isset($percent_of))
+        {
+            $search_param['body']['query']['bool']['must'][] = ['terms' => ["shipping_type" => [1,2]]];
+        }
+
+        else if(isset($free_shipping))
+        {
+            $search_param['body']['query']['bool']['must'][] = ['term' => ["shipping_type" => 1]];
+        }
+        
+        else if(isset($percent_of))
+        {
+            $search_param['body']['query']['bool']['must'][] = ['term' => ["shipping_type" => 2]];
+        }
+
+        else if(isset($doller_of))
+        {
+            $search_param['body']['query']['bool']['must'][] = ['term' => ["shipping_type" => 3]];
+        }
+
+      
+
+
+        if(isset($brand_id))
+        {
+            $brand_id = intval(base64_decode($brand_id));
+            $search_param['body']['query']['bool']['must'][] = ['term' => ["brand" => $brand_id]];
+             $search_param['body']['sort'] = [
+                ["updated_at_formatted" => ["order" => "desc"]]
+            ];
+        }
+
+        
+
+        if ($search_term != "") 
+        {
+            $response['hits']['hits'] = []; //if response of hit blank  
+             // unset($search_param['body']);
+
+            $is_suggetion = $request->input('is_suggetion');
+            if($is_suggetion!="1")
+            {   
+                session()->push('products.name', $search_term);
+            }
+          
+           
+            
+            // $search_param['body']['query']['match_phrase']['is_active'] = 1;
+            // $search_param['body']['query']['match_phrase']['is_vendor_active'] = 1;
+            // $search_param['body']['query']['match_phrase']['product_complete_status'] = 4;
+            // $search_param['body']['query']['match_phrase']['is_deleted'] = 0;
+            // $search_param['body']['query']['match_phrase']['description'] = $search_term;
+
+            // dd($search_param);
+
+            /*$search_param['body']['bool']['must'][]= [
+                            ['term' => ["is_active" => 1]],
+                            ['term' => ["is_vendor_active" => 1]],
+                            ['term' => ["product_complete_status" => 4]],
+                            ['term' => ["is_deleted" => 0]],
+                            ['term' => ["product_status" => 1]],
+                        ];*/
+
+            /*$search_param['body']['bool']['must_not'][]= [
+                            ['terms' => ["product_complete_status" => [1, 2, 3]]],
+                            ['terms' => ["is_active" => [0, 2]]],
+                            ['terms' => ["is_deleted" => [1]]],
+                            ['terms' => ["product_status" => [0]]]
+                        ];*/
+                        
+            /*
+                $params = array(
+                
+                "scroll" => "5m",
+                "size" => 50
+                );
+
+                $docs = $client->search($params);
+                $scroll_id = $docs['_scroll_id']; 
+
+                dd($scroll_id);  */      
+
+            $search_param['body']['query']['bool']['must'][] = [
+                'simple_query_string' => [
+                    "query" => "*" . $search_term . "*",
+                    "fields" => [
+                        "product_name", "category_name", "product_name_alphanumeric_only", 'brand_name^5',
+                        'brand_name_alphanumeric_only^5', 'sub_cat_name_arr', 'sub_cat_plural_arr', 'cat_name_plural', 'product_name_plural'
+                    ],
+                    "default_operator" => "or",
+                    "analyze_wildcard" => true,
+                    "minimum_should_match"=>'100%',
+                ]
+            ];
+
+
+            $total_results = 0;
+            try {
+
+                $response = $client->search($search_param);
+
+                $total_results = isset($response['hits']['total']['value']) ? $response['hits']['total']['value'] : 0;
+
+
+            } catch (\Exception $e) {
+                $total_results = 0;
+            }
+
+
+        }
+
+        if (isset($filter) && $filter == "new_arrivals") {
+            $search_param['body']['sort'] = [
+                ["created_at_formatted" => ["order" => "desc"]]
+            ];
+        }
+
+        if (isset($filter) && $filter == "best_seller") {
+            
+            $search_param['body']['query']['bool']['must'][] = [
+                'term' => ["is_best_seller" => 1]
+            ];
+        }
+
+
+       
+    
+        $total_results = 0;
+
+       
+        
+        //dd($search_param);       
+        try {
+            $response = $client->search($search_param);
+          //dd($total_results);
+            /*$total_results = isset($response['hits']['total']['value']) ? $response['hits']['total']['value'] : 0;*/
+            
+            //dd($search_param);
+            unset($search_param['body']['sort']);
+            $total_results = $client->count($search_param);
+            $total_results = isset($total_results) ? $total_results['count'] : 0;
+
+
+        } catch (\Exception $e) {
+            
+            $total_results = 0;
+        }
+
+        if ($total_results == 0) {
+            $this->arr_view_data['arr_data'] = [];
+            $this->arr_view_data['page_title'] = isset($form_data['search_term']) ? $form_data['search_term'] : 'Product(s)';
+            return $this->arr_view_data;
+        }
+
+        $total_page = intval(ceil($total_results / $per_page));
+
+        if ($current_page > $total_page) {
+            $current_page = $total_page;
+        }
+
+        $page_offset = ($current_page - 1) * $per_page;
+        /* Apply Offset */
+
+        $search_param['body']['size'] = $per_page;
+        $search_param['body']['from'] = $page_offset;
+
+        if (isset($search_param['filter_path'])) {
+            unset($search_param['filter_path']);
+        }
+
+
+        
+
+        $total_results = 0;
+        try {
+            $response = $client->search($search_param);
+            
+           
+            
+            $sum = array_sum(array_column($response['hits']['hits'],'_score'));
+            $count = count(array_column($response['hits']['hits'],'_score'));
+            //dd($sum/$count,array_column($response['hits']['hits'],'_score'));
+           /* $total_results = isset($response['hits']['total']['value']) ? $response['hits']['total']['value'] : 0;*/
+           
+          
+            /*$total_results = isset($response['hits']['total']['value']) ? $response['hits']['total']['value'] : 0;*/
+            unset($search_param['body']['size']);
+            unset($search_param['body']['from']);
+            unset($search_param['body']['sort']);
+            //dd($search_param);
+             $total_results = $client->count($search_param);
+            $total_results = isset($total_results) ? $total_results['count'] : 0;
+
+           
+
+
+           
+
+        } catch (\Exception $e) {
+            
+            $total_results = 0;
+        }
+
+        $fav_product_arr  = $fav_maker_arr = [];
+
+        if($user != false && $user->inRole('retailer'))
+        {
+            $fav_product_arr = $this->FavoriteModel
+                                    ->where('retailer_id', $user_id)
+                                    ->where('type', 'product')
+                                    ->get()
+                                    ->toArray();
+
+            $fav_maker_arr  = $this->FavoriteModel
+                                   ->where('retailer_id', $user_id)   
+                                   ->where('type', 'maker')
+                                   ->get()
+                                   ->toArray();
+        }
+        else if($user != false && $user->inRole('customer'))
+        {
+            $fav_product_arr = $this->CustomerFavoriteModel
+                                    ->where('customer_id', $user_id)
+                                    ->where('type', 'product')
+                                    ->get()
+                                    ->toArray();
+
+            $fav_maker_arr  = $this->CustomerFavoriteModel
+                                   ->where('customer_id', $user_id)   
+                                   ->where('type', 'maker')
+                                   ->get()
+                                   ->toArray();
+        }
+
+        $fav_product_id_arr = array_column($fav_product_arr, 'product_id');
+        $fav_maker_id_arr   = array_column($fav_maker_arr, 'maker_id');
+
+
+        $this->arr_view_data['arr_data'] = $response['hits']['hits'];
+        $this->arr_view_data['total_results'] = $total_results;
+        $this->arr_view_data['arr_pagination'] = $this->get_pagination_data($this->arr_view_data['arr_data'], $total_results, $per_page, $request->all());
+        $this->arr_view_data['fav_product_arr']    = $fav_product_id_arr;
+        $this->arr_view_data['fav_maker_id_arr']   = $fav_maker_id_arr;
+        $this->arr_view_data['page_title']         = isset($form_data['search_term']) ? $form_data['search_term'] : 'Product(s)';
+
+        $is_by_ajax = $request->input('by_ajax');
+
+        $category_arr = Session::get('category_arr');
+        $category_name_arr = [];
+        if(!empty($category_arr) && is_array($category_arr)){
+        foreach ($category_arr as $cat_key => $cat_value) {
+            $category_name_arr[$cat_key]['category_name'] = $cat_value['category_name'];
+            $category_name_arr[$cat_key]['category_id'] = $cat_value['id'];
+        }
+    }
+
+        $vendor_arr = $this->get_search_vendor();
+        $vendor_name_arr = [];
+        if(!empty($vendor_arr) && is_array($vendor_arr)){
+        foreach ($vendor_arr as $vendor_key => $vendor_value) {
+            $vendor_name_arr[$vendor_key]['brand_name'] = $vendor_value->company_name;
+            $vendor_name_arr[$vendor_key]['user_id'] = $vendor_value->id;
+        } 
+        }        
+
+         //dd($vendor_name_arr);
+        $response = $recently_searched = [];
+        if ($is_by_ajax == 1) {
+            $recently_searched = $request->session()->get('products.name');
+
+            if (isset($recently_searched) && count($recently_searched) > 0) {
+                $recently_searched = array_unique($recently_searched);
+                $recently_searched = array_reverse($recently_searched);
+            }
+
+            //dd($this->arr_view_data['arr_data']);
+            $response['status'] = "success";
+            $response['data'] = $this->arr_view_data['arr_data'];
+            $response['data'] = array_column($response['data'], '_source');
+            $response['recently_searched'] = $recently_searched;
+            $response['category_data'] = $category_name_arr;
+            $response['vendor_data'] = $vendor_name_arr;
+        }
+      
+        
+        $this->arr_view_data['is_by_ajax'] = $is_by_ajax;
+        $this->arr_view_data['response'] = $response;
+
+        return $this->arr_view_data;
+    }
+
+ 
+    public function index_product($product_id = false)
+    {  
+       $elastic_host   = env("ELASTIC_HOST");
+       $elasticsearch  = ClientBuilder::create()
+                        ->setHosts([$elastic_host])
+                        ->build();
+       $product_id     = isset($product_id) ? $product_id : 0;
+       $product        = ProductsModel::where('id', $product_id)->first();
+       
+       $final_search_arr = $product->toSearchArray();
+       $sub_category_arr = $product->productSubCategories->toArray();
+       
+       $sub_cat_arr = [];
+       $sub_cat_arr = [];
+       
+       $sub_cat_name_arr = [];
+       $sub_cat_plurls   = [];
+
+            foreach ($sub_category_arr as $sub_cat_key => $sub_cat_value) {
+                $sub_category_name = get_subcategory_name($sub_cat_value['sub_category_id']);
+                $sub_cat_name_arr[] = $sub_category_name;
+                $sub_cat_arr[] = $sub_cat_value['sub_category_id'];
+                $sub_cat_plurls[] = str_plural($sub_category_name);
+            }
+
+            $vendor_id = $product->user_id;
+
+            $is_vendor_active_obj = $this->UserModel->select('status')
+            ->where('id', $vendor_id)
+            ->first();
+        
+            if (isset($is_vendor_active_obj)) {
+                $is_vendor_active = $is_vendor_active_obj->toArray();
+            } 
+            else {
+                $is_vendor_active['status'] = 0;
+            }
+         
+            $vendor_minimum_obj = $this->ShopSettings->select('first_order_minimum',                                                   'shop_lead_time')
+                                                      ->where('maker_id', $vendor_id)
+                                                      ->first();
+
+            if (isset($vendor_minimum_obj)) {
+                $vendor_minimum = $vendor_minimum_obj->toArray();
+            } 
+            else {
+                $vendor_minimum['first_order_minimum'] = 0;
+                $vendor_minimum['shop_lead_time'] = 0;
+            }
+
+            if(isset($vendor_minimum['shop_lead_time'])){
+               if($vendor_minimum['shop_lead_time']!="0")
+                {
+                    $lead_time_min = isset($vendor_minimum['shop_lead_time'][0])?intval(explode("-",$vendor_minimum['shop_lead_time'])[0]):2;
+
+                    $lead_time_max = isset($vendor_minimum['shop_lead_time'][1])?intval(explode("-",$vendor_minimum['shop_lead_time'])[1]):4;
+                }
+            }
+
+                //dd($sub_cat_arr,$sub_cat_plurls,$sub_cat_name_arr);
+
+                $final_search_arr['lead_time_min'] = isset($lead_time_min)?intval($lead_time_min):0;
+                $final_search_arr['lead_time_max'] = isset($lead_time_max)?intval($lead_time_max):0;
+                $final_search_arr['vendor_minimum'] = isset($vendor_minimum['first_order_minimum']) ? intval($vendor_minimum['first_order_minimum']) : 0;
+                $final_search_arr['shipping_type'] = isset($final_search_arr['shipping_type'])? intval($final_search_arr['shipping_type']):0;
+                $final_search_arr['is_vendor_active'] = isset($is_vendor_active['status']) ? intval($is_vendor_active['status']) : 0;
+                $final_search_arr['category_name'] = isset($product->categoryDetails->category_name) ? $product->categoryDetails->category_name : null;
+                $final_search_arr['is_category_set'] = isset($product->categoryDetails->category_name) ? $product->categoryDetails->category_name : null;
+                $final_search_arr['brand_name'] = isset($product->brand_details->brand_name) ? $product->brand_details->brand_name : null;
+                $final_search_arr['created_at_formatted'] = strtotime($final_search_arr['created_at']);
+                $final_search_arr['updated_at_formatted'] = strtotime($final_search_arr['updated_at']);
+                // $final_search_arr['product_image'] = isset($product->product_image) ? $product->product_image : null ;
+                // $final_search_arr['product_image_thumb'] = isset($product->product_image_thumb) ? $product->product_image_thumb : null ;
+                $final_search_arr['unit_wholsale_price'] = floatval($final_search_arr['unit_wholsale_price']);
+                $final_search_arr['retail_price'] = floatval($final_search_arr['retail_price']);
+                $final_search_arr['available_qty']= floatval($final_search_arr['available_qty']);
+                $final_search_arr['is_active']    = intval($final_search_arr['is_active']);
+                $final_search_arr['is_deleted']   = intval($final_search_arr['is_deleted']);
+                $final_search_arr['previous_status'] = intval($final_search_arr['is_active']);
+                $final_search_arr['product_complete_status'] = intval($final_search_arr['product_complete_status']);
+                $final_search_arr['product_status'] = intval($final_search_arr['product_status']);
+                $final_search_arr['sub_cat_arr'] = $this->clean_array($sub_cat_arr);
+                $final_search_arr['sub_cat_plural_arr'] = $this->clean_array($sub_cat_plurls);
+                $final_search_arr['sub_cat_name_arr'] = $this->clean_array($sub_cat_name_arr);
+                $final_search_arr['cat_name_plural'] = isset($final_search_arr['category_name']) ? str_plural($final_search_arr['category_name']) : '';
+                $final_search_arr['product_name_plural'] = isset($final_search_arr['product_name']) ? str_plural($final_search_arr['product_name']) : '';
+                $final_search_arr['category_name_alphanumeric_only'] = preg_replace("/[^a-zA-Z0-9]+/", "", $final_search_arr['category_name']);
+                $final_search_arr['brand_name_alphanumeric_only'] = preg_replace("/[^a-zA-Z0-9]+/", "", $final_search_arr['brand_name']);
+                $final_search_arr['product_name_alphanumeric_only'] = preg_replace("/[^a-zA-Z0-9]+/", "", $final_search_arr['product_name']);
+
+            
+           
+                //dd($final_search_arr);
+
+                $elasticsearch->index(
+                [
+                    'index' => $product->getSearchIndex(),
+                    'type' => $product->getSearchType(),
+                    'id' => $product->getKey(),
+                    'body' => $final_search_arr,
+                ]
+            );
+            
+        return true;
+    }
+
+    public function delete_product($product_id = false)
+    {
+        $elastic_host = env("ELASTIC_HOST");
+        $elastic_index = env("ELASTIC_INDEX_NAME");
+
+        $elasticsearch = ClientBuilder::create()
+            ->setHosts([$elastic_host])
+            ->build();
+
+        $product_id = intval($product_id);
+        if (isset($product_id)) {
+            $elasticsearch->deleteByQuery(
+                [
+                    'index' => $elastic_index,
+                    'body' => [
+                        'query' => [
+                            'match' => [
+                                '_id' => $product_id
+                            ]
+                        ]
+                    ]
+                ]
+            );
+        }
+    }
+
+    public function activate_product($product_id = false, $previous_status = false)
+    {
+        $elastic_index = env("ELASTIC_INDEX_NAME");
+        $elastic_host = env("ELASTIC_HOST");
+
+        $elasticsearch = ClientBuilder::create()
+            ->setHosts([$elastic_host])
+            ->build();
+
+        $params = [
+            'index' => $elastic_index,
+            'id'    => $product_id,
+            'body'  => [
+                'doc' => [
+                    'is_active' => 1,
+                    'previous_status' => $previous_status
+                ]
+            ]
+        ];
+        // Update doc at /my_index/_doc/my_id
+        $response = $elasticsearch->update($params);
+    }
+
+    public function decactivate_product($product_id = false, $previous_status = false)
+    {
+        $elastic_index = env("ELASTIC_INDEX_NAME");
+        $elastic_host = env("ELASTIC_HOST");
+        $elasticsearch = ClientBuilder::create()
+            ->setHosts([$elastic_host])
+            ->build();
+
+        $params = [
+            'index' => $elastic_index,
+            'id'    => $product_id,
+            'body'  => [
+                'doc' => [
+                    'is_active' => 0,
+                    'previous_status' => $previous_status
+                ]
+            ]
+        ];
+        // Update doc at /my_index/_doc/my_id
+        $response = $elasticsearch->update($params);
+    }
+
+    public function decactivate_vendor($product_id)
+    {
+        $elastic_index = env("ELASTIC_INDEX_NAME");
+        $elastic_host = env("ELASTIC_HOST");
+        $elasticsearch = ClientBuilder::create()
+            ->setHosts([$elastic_host])
+            ->build();
+
+        $params = [
+            'index' => $elastic_index,
+            'id'    => $product_id,
+            'body'  => [
+                'doc' => [
+                    'is_vendor_active' => 0
+                ]
+            ]
+        ];
+        // Update doc at /my_index/_doc/my_id
+        $response = $elasticsearch->update($params);
+    }
+
+    public function deactivate_vendor_product($vendor_id)
+    {
+        $vendor_id = isset($vendor_id) ? intval($vendor_id) : 0;
+
+        $elastic_index = env("ELASTIC_INDEX_NAME");
+        $elastic_host = env("ELASTIC_HOST");
+
+        $elasticsearch = ClientBuilder::create()
+            ->setHosts([$elastic_host])
+            ->build();
+
+        $search_param['body']['query']['bool']['must'] = [
+            [
+                ['term' => ["user_id" => $vendor_id]]
+            ]
+        ];
+
+        $size = $this->ProductsModel->where('user_id', $vendor_id)->count();
+
+        $search_param['body']['size'] = $size;
+
+        $response = $elasticsearch->search($search_param);
+
+        foreach ($response['hits']['hits'] as $result_key => $result_value) {
+            if ($result_value['_index'] == $elastic_index) {
+                $this->decactivate_vendor($result_value['_id']);
+            }
+        }
+    }
+
+    public function activate_vendor($product_id)
+    {
+        $elastic_index = env("ELASTIC_INDEX_NAME");
+        $elastic_host = env("ELASTIC_HOST");
+        $elasticsearch = ClientBuilder::create()
+            ->setHosts([$elastic_host])
+            ->build();
+
+        $params = [
+            'index' => $elastic_index,
+            'id'    => $product_id,
+            'body'  => [
+                'doc' => [
+                    'is_vendor_active' => 1
+                ]
+            ]
+        ];
+        // Update doc at /my_index/_doc/my_id
+        $response = $elasticsearch->update($params);
+    }
+
+    public function activate_vendor_product($vendor_id)
+    {
+        $vendor_id = isset($vendor_id) ? intval($vendor_id) : 0;
+
+        $elastic_index = env("ELASTIC_INDEX_NAME");
+        $elastic_host = env("ELASTIC_HOST");
+
+        $elasticsearch = ClientBuilder::create()
+            ->setHosts([$elastic_host])
+            ->build();
+
+        $search_param['body']['query']['bool']['must'] = [
+            [
+                ['term' => ["user_id" => $vendor_id]]
+            ]
+        ];
+
+        $size = $this->ProductsModel->where('user_id', $vendor_id)->count();
+
+        $search_param['body']['size'] = $size;
+
+        $response = $elasticsearch->search($search_param);
+
+        foreach ($response['hits']['hits'] as $result_key => $result_value) {
+            if ($result_value['_index'] == $elastic_index) {
+                $this->activate_vendor($result_value['_id']);
+            }
+        }
+    }
+
+    public function activate_category_product($category_id = false)
+    {
+        $category_id = isset($category_id) ? intval($category_id) : 0;
+        $elastic_index = env("ELASTIC_INDEX_NAME");
+        $elastic_host = env("ELASTIC_HOST");
+
+        $elasticsearch = ClientBuilder::create()
+            ->setHosts([$elastic_host])
+            ->build();
+
+        $search_param['body']['query']['bool']['must'] = [
+            [
+                ['term' => ["category_id" => $category_id]],
+                ['term' => ["product_complete_status" => 4]]
+            ]
+        ];
+
+        $size = $this->ProductsModel->where('category_id', $category_id)->count();
+
+        $search_param['body']['size'] = $size;
+
+        $response = $elasticsearch->search($search_param);
+
+        foreach ($response['hits']['hits'] as $result_key => $result_value) {
+            if ($result_value['_source']['previous_status'] == 1) {
+                if ($result_value['_index'] == $elastic_index) {
+                    $this->activate_product($result_value['_id'], $result_value['_source']['previous_status']);
+                }
+            }
+        }
+    }
+
+    public function deactivate_category_product($category_id = false)
+    {
+        $category_id = isset($category_id) ? intval($category_id) : 0;
+        $elastic_index = env("ELASTIC_INDEX_NAME");
+        $elastic_host = env("ELASTIC_HOST");
+
+        $elasticsearch = ClientBuilder::create()
+            ->setHosts([$elastic_host])
+            ->build();
+
+        $search_param['body']['query']['bool']['must'] = [
+            [
+                ['term' => ["category_id" => $category_id]]
+
+            ]
+
+        ];
+
+        $size = $this->ProductsModel->where('category_id', $category_id)->count();
+
+        $search_param['body']['size'] = $size;
+        $response = $elasticsearch->search($search_param);
+
+        foreach ($response['hits']['hits'] as $result_key => $result_value) {
+            if ($result_value['_index'] == $elastic_index) {
+                $this->decactivate_product($result_value['_id'], $result_value['_source']['previous_status']);
+            }
+        }
+    }
+
+    public function deactivate_sub_category_product($category_id = false, $sub_category_id = false)
+    {
+        $category_id = isset($category_id) ? intval($category_id) : 0;
+        $sub_category_id = isset($sub_category_id) ? intval($sub_category_id) : 0;
+        $elastic_index = env("ELASTIC_INDEX_NAME");
+        $elastic_host = env("ELASTIC_HOST");
+
+        $elasticsearch = ClientBuilder::create()
+            ->setHosts([$elastic_host])
+            ->build();
+
+        $search_param['body']['query']['bool']['must'] = [
+            [
+                ['term' => ["category_id" => $category_id]],
+                ["term" => ["sub_cat_arr" => $sub_category_id]],
+            ]
+
+        ];
+
+        $size = $this->ProductsModel->where('category_id', $category_id)->count();
+
+        $search_param['body']['size'] = $size;
+        $response = $elasticsearch->search($search_param);
+
+        foreach ($response['hits']['hits'] as $result_key => $result_value) {
+            if ($result_value['_index'] == $elastic_index) {
+                $this->decactivate_product($result_value['_id'], $result_value['_source']['previous_status']);
+            }
+        }
+    }
+
+    public function activate_sub_category_product($category_id = false, $sub_category_id = false)
+    {
+        $category_id = isset($category_id) ? intval($category_id) : 0;
+        $sub_category_id = isset($sub_category_id) ? intval($sub_category_id) : 0;
+        $elastic_index = env("ELASTIC_INDEX_NAME");
+        $elastic_host = env("ELASTIC_HOST");
+
+        $elasticsearch = ClientBuilder::create()
+            ->setHosts([$elastic_host])
+            ->build();
+
+        $search_param['body']['query']['bool']['must'] = [
+            [
+                ['term' => ["category_id" => $category_id]],
+                ["term" => ["sub_cat_arr" => $sub_category_id]],
+            ]
+
+        ];
+
+        $size = $this->ProductsModel->where('category_id', $category_id)->count();
+
+        $search_param['body']['size'] = $size;
+        $response = $elasticsearch->search($search_param);
+
+        foreach ($response['hits']['hits'] as $result_key => $result_value) {
+            if ($result_value['_index'] == $elastic_index) {
+                $this->activate_product($result_value['_id'], $result_value['_source']['previous_status']);
+            }
+        }
+    }
+
+    public function update_complete_status($product_id = false, $complete_status)
+    {
+        $complete_status = isset($complete_status) ? intval($complete_status) : 0;
+        $product_id = isset($product_id) ? intval($product_id) : 0;
+                 //dd($complete_status,$product_id);
+        $elastic_index = env("ELASTIC_INDEX_NAME");
+        $elastic_host = env("ELASTIC_HOST");
+        $elasticsearch = ClientBuilder::create()
+            ->setHosts([$elastic_host])
+            ->build();
+
+        $params = [
+            'index' => $elastic_index,
+            'id'    => $product_id,
+            'body'  => [
+                'doc' => [
+                    'product_complete_status' => $complete_status,
+                    'is_vendor_active' => 1
+                ]
+            ]
+        ];
+            // Update doc at /my_index/_doc/my_id
+        $response = $elasticsearch->update($params);
+    }
+
+    public function change_brand_name($products_arr = false, $brand_name)
+    {
+        ini_set('max_execution_time', 0);
+        $brand_name = isset($brand_name) ? $brand_name : 0;
+
+        $elastic_index = env("ELASTIC_INDEX_NAME");
+        $elastic_host  = env("ELASTIC_HOST");
+        $elasticsearch = ClientBuilder::create()
+            ->setHosts([$elastic_host])
+            ->build();
+
+        foreach ($products_arr as $prod_key => $prod_value) {
+            $product_id = $prod_value['id'];
+
+            $params = [
+                'index' => $elastic_index,
+                'id'    => $product_id,
+                'body'  => [
+                    'doc' => [
+                        'brand_name' => $brand_name
+                    ]
+                ]
+            ];
+            // Update doc at /my_index/_doc/my_id
+            $response = $elasticsearch->update($params);
+        }
+    }
+
+    public function update_lead_time($products_arr = false,$lead_time,$first_order_minimum)
+    {   
+        ini_set('max_execution_time', 0);
+        $brand_name = isset($brand_name) ? $brand_name : 0;
+
+        $elastic_index = env("ELASTIC_INDEX_NAME");
+        $elastic_host  = env("ELASTIC_HOST");
+        $elasticsearch = ClientBuilder::create()
+            ->setHosts([$elastic_host])
+            ->build();
+        
+
+        if(isset($lead_time))
+        {  
+         $lead_time_min = explode("-",$lead_time)[0]; 
+        
+         $lead_time_max = explode("-",$lead_time)[1];   
+
+        }
+            
+         if(isset($lead_time_min) && isset($lead_time_max))
+        {
+            $lead_time_min = intval($lead_time_min);
+            $lead_time_max = intval($lead_time_max);
+        }
+
+        foreach ($products_arr as $prod_key => $prod_value) {
+
+            $product_id = $prod_value['id'];
+
+            $params = [
+                'index' => $elastic_index,
+                'id'    => $product_id,
+                'body'  => [
+                    'doc' => [
+                        'lead_time_min' => $lead_time_min,
+                        'lead_time_max' => $lead_time_max,
+                        'vendor_minimum'=> isset($first_order_minimum)?intval($first_order_minimum): 0,
+                    ]
+                ]
+            ];
+            // Update doc at /my_index/_doc/my_id
+            $response = $elasticsearch->update($params);
+
+        }
+    }
+
+
+    public function get_pagination_data($arr_data = [], $count = 1, $per_page = 0, $append_data = [])
+    {   
+        //dd($append_data);
+        /* Pagination to an Array() */
+                                        $paginator = new LengthAwarePaginator($arr_data, $count, $per_page, Paginator::resolveCurrentPage(), array('path' => Paginator::resolveCurrentPath()));
+        $paginator->appends($append_data);
+        /* Appends all input parameter to Links */
+        
+                                        return $paginator;
+    }
+
+    public function get_search_vendor()
+    {
+        $vendors_details_arr = [];
+        /*get all vendors*/
+                                        /*  $obj_vendors_details = $this->MakerModel->with(['shop_store_images'=>function($query){
+                                                         $query->select('id','maker_id','store_profile_image');      
+                                                       },'user_details'=>function($query1){
+                                                           
+                                                           $query1->where('status',1);
+                                                           $query1->whereNull('deleted_at');
+                                                           $query1->where('id','!=',1);
+
+                                                       }])
+
+                                        ->where('company_name','!=',"");
+
+                                        if($letter!= false)
+                                        {
+                                          $obj_vendors_details = $obj_vendors_details->where('company_name','LIKE', $searching_word.'%');
+                                        }
+                                        
+                                       $obj_vendors_details = $obj_vendors_details->paginate(8);*/
+
+
+                                        /*row query for get all vendors*/
+
+                                        $role_slug = 'maker';
+
+        $user_table        = $this->UserModel->getTable();
+        $prefix_user_table = DB::getTablePrefix() . $user_table;
+
+        $role_table        = $this->RoleModel->getTable();
+        $prefix_role_table = DB::getTablePrefix() . $role_table;
+
+        $role_user_table        = $this->RoleUsersModel->getTable();
+        $prefix_role_user_table = DB::getTablePrefix() . $role_user_table;
+
+        $shop_table        = $this->ShopImagesModel->getTable();
+        $prefix_shop_table = DB::getTablePrefix() . $shop_table;
+
+        $maker_table        = $this->MakerModel->getTable();
+        $prefix_maker_table = DB::getTablePrefix() . $maker_table;
+
+        $shop_setting_table        = $this->ShopSettings->getTable();
+        $prefix_shop_setting_table = DB::getTablePrefix() . $shop_table;
+
+        $obj_vendors_details = DB::table($maker_table)
+            ->select(
+                DB::raw(
+                    $prefix_user_table . ".id as id,"
+                        . $prefix_user_table . ".email as email, "
+                        . $prefix_user_table . ".status, "
+                        . $prefix_user_table . ".contact_no as contact_no, "
+                        . $shop_table . ".store_profile_image, "
+                        . $maker_table . ".brand_name, "
+                        . $maker_table . ".company_name, "
+                        . $prefix_user_table . ".first_name, "
+                        . "CONCAT(" . $prefix_user_table . ".first_name,' ',"
+                        . $prefix_user_table . ".last_name) as user_name"
+                )
+            )
+            ->leftJoin($user_table, $prefix_user_table . '.id', '=', $maker_table . '.user_id')
+            ->leftJoin($shop_table, $prefix_shop_table . '.maker_id', '=', $maker_table . '.user_id')
+            ->where($user_table . '.status', 1)
+            ->where($user_table . '.is_approved', 1)
+            ->whereNull($user_table . '.deleted_at')
+            ->where($user_table . '.id', '!=', 1)
+            ->where($maker_table . '.company_name', '!=', "")->get();
+
+        if (isset($obj_vendors_details)) {
+            $arr_vendor_agination = clone $obj_vendors_details;
+            $vendors_details_arr  = $obj_vendors_details->toArray();
+        }
+
+        return $vendors_details_arr;
+    }
+
+    /*prodcut active and block*/
+
+    public function activate_product_status($product_id = false, $previous_status = false)
+    {
+        $elastic_index = env("ELASTIC_INDEX_NAME");
+        $elastic_host = env("ELASTIC_HOST");
+
+        $elasticsearch = ClientBuilder::create()
+            ->setHosts([$elastic_host])
+            ->build();
+
+        $params = [
+            'index' => $elastic_index,
+            'id'    => $product_id,
+            'body'  => [
+                'doc' => [
+                    'product_status' => 1
+                            //'previous_status' => $previous_status
+                ]
+            ]
+        ];
+        // Update doc at /my_index/_doc/my_id
+        $response = $elasticsearch->update($params);
+    }
+
+    public function decactivate_product_status($product_id = false, $previous_status = false)
+    {
+        $elastic_index = env("ELASTIC_INDEX_NAME");
+        $elastic_host = env("ELASTIC_HOST");
+        $elasticsearch = ClientBuilder::create()
+            ->setHosts([$elastic_host])
+            ->build();
+
+        $params = [
+            'index' => $elastic_index,
+            'id'    => $product_id,
+            'body'  => [
+                'doc' => [
+                    'product_status' => 0
+                                //'previous_status' => $previous_status
+                ]
+            ]
+        ];
+            // Update doc at /my_index/_doc/my_id
+        $response = $elasticsearch->update($params);
+    }
+
+    public function test_reindex_products()
+    {
+        
+        //dd("ok");
+        $product_obj = array(
+              "id" => 1,
+              "user_id" => 715,
+              "category_id" => 28,
+              "product_name" => "Hand Sanitizer SlatDisplaySign",
+              "brand" => 1,
+              "ingrediants" => null,
+              "description" => "Hand Sanitizer SlatDisplaySign",
+              "unit_wholsale_price" => 1.0,
+              "retail_price" => 2.0,
+              "available_qty" => 1.0,
+              "shipping_charges" => "15.00",
+              "is_active" => 1,
+              "is_archive" => 0,
+              "is_remark_checked" => 1,
+              "is_draft" => null,
+              "is_best_seller" => null,
+              "is_tester_available" => null,
+              "product_image" => "product_image/BD107.jpg",
+              "product_image_thumb" => "product_image/BD107.jpg",
+              "product_complete_status" => 4,
+              "remark" => null,
+              "previous_category_status" => "1",
+              "created_at" => "2020-01-12 08:07:07",
+              "updated_at" => "2020-10-27 21:53:29",
+              "shipping_type" => 2,
+              "minimum_amount_off" => "100.00",
+              "off_type_amount" => "10",
+              "prodduct_dis_type" => 1,
+              "product_dis_min_amt" => "100.000000",
+              "product_discount" => 10.0,
+              "product_status" => 1,
+              "case_quantity" => null,
+              "is_deleted" => 0,
+              "lead_time_min" => 2,
+              "lead_time_max" => 4,
+              "vendor_minimum" => 60,
+              "is_vendor_active" => 1,
+              "category_name" => "Special",
+              "is_category_set" => "Special",
+              "brand_name" => "Blue Q",
+              "created_at_formatted" => 1578796627,
+              "updated_at_formatted" => 1603815809,
+              "previous_status" => 1,
+              "sub_cat_arr" => "[55]",
+              "sub_cat_plural_arr" => "[Miscellaneouses]",
+              "sub_cat_name_arr" => "[Miscellaneous]",
+              "cat_name_plural" => "Specials",
+              "product_name_plural" => "Hand Sanitizer SlatDisplaySigns",
+              "category_name_alphanumeric_only" => "Special",
+              "brand_name_alphanumeric_only" => "BlueQ",
+              "product_name_alphanumeric_only" => "HandSanitizerSlatDisplaySign"
+    );
+
+    ini_set('max_execution_time', 0);
+    $elastic_host = env("ELASTIC_HOST");
+    $elasticsearch = ClientBuilder::create()
+                    ->setHosts([$elastic_host])
+                    ->build();
+
+    for($i=0;$i<=200000; $i++)
+    {
+        try{
+            $elasticsearch->index(
+                [
+                    'index' => "products",
+                    'type' => "products",
+                    'id' => $i,
+                    'body' => $product_obj,
+                    ]
+                );
+                //dd($product->getSearchType());
+            } catch (\Exception $e) {
+                //dump($final_search_arr);
+                echo $e->getMessage();
+                return false;
+            }
+        }
+    }
+}

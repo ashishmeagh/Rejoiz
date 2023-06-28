@@ -1,0 +1,25 @@
+version: '3'
+ 
+services:
+  elasticsearch:
+    container_name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.0.1
+    restart: always
+    volumes:
+      - /var/elasticsearch_data:/usr/share/elasticsearch/data
+    ports:
+      - 15790:9200
+      - 15890:9300
+    environment:
+        ES_JAVA_OPTS: "-Xmx1000m -Xms1000m"
+        discovery.type: single-node
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.0.1
+    container_name: kibana
+    restart: always
+    environment:
+        ELASTICSEARCH_URL: "http://elasticsearch:9200"
+    links:
+       - elasticsearch
+    ports: 
+       - 15990:5601

@@ -1,0 +1,25 @@
+.red{
+	color: #ff0000;
+}
+
+/*.form-control-small{background-color: #fff; border: 1px solid #e4e7ea;}*/
+
+.form-control-small{
+  background-color: #fff;
+  border: 1px solid #e4e7ea;
+  border-radius: 0;
+  box-shadow: none;
+  color: #565656;
+  height: 38px;
+  max-width: 100%;
+  padding: 7px 12px;
+  transition: all 300ms linear 0s;
+  width: 110px;
+}
+
+.zoom-img:hover {
+  -ms-transform: scale(1.1); /* IE 9 */
+  -webkit-transform: scale(1.1); /* Safari 3-8 */
+  transform: scale(1.1); 
+  transition: 0.4s;  
+}

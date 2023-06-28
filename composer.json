@@ -1,0 +1,76 @@
+{
+    "name": "laravel/laravel",
+    "description": "The Laravel Framework.",
+    "keywords": ["framework", "laravel"],
+    "license": "MIT",
+    "type": "project",
+    "require": {
+        "php": "^7.1",
+        "adhocore/jwt": "^1.1",
+        "anam/phpcart": "^1.0",
+        "arcanedev/log-viewer": "~4.4",
+        "auth0/auth0-php": "^5.3",
+        "barryvdh/laravel-debugbar": "^3.2",
+        "barryvdh/laravel-snappy": "^0.4.5",
+        "cartalyst/sentinel": "2.0.*",
+        "cartalyst/stripe-laravel": "7.0.*",
+        "dimsav/laravel-translatable": "^5.4",
+        "elasticsearch/elasticsearch": "~7.0",
+        "fideloper/proxy": "~3.3",
+        "h4cc/wkhtmltoimage-amd64": "0.12.x",
+        "h4cc/wkhtmltopdf-amd64": "0.12.x",
+        "intervention/image": "^2.5",
+        "laracasts/flash": "^3.0",
+        "laravel/framework": "5.5.*",
+        "laravel/socialite": "^3.2",
+        "laravel/tinker": "~1.0",
+        "laravelcollective/html": "5.5.*",
+        "laravolt/avatar": "^2.1",
+        "maatwebsite/excel": "~2.1.0",
+        "spatie/laravel-newsletter": "^4.2",
+        "stripe/stripe-php": "^6.43",
+        "watson/rememberable": "^1.0",
+        "yajra/laravel-datatables-oracle": "~6.0"
+    },
+    "require-dev": {
+        "filp/whoops": "~2.0",
+        "fzaninotto/faker": "~1.4",
+        "mockery/mockery": "~1.0",
+        "phpunit/phpunit": "~6.0",
+        "symfony/thanks": "^1.0"
+    },
+    "autoload": {
+        
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "dont-discover": [
+            ]
+        }
+    },
+    "scripts": {
+        "post-root-package-install": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ],
+        "post-create-project-cmd": [
+            "@php artisan key:generate"
+        ],
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover"
+        ]
+    },
+    "config": {
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "optimize-autoloader": true
+    }
+}

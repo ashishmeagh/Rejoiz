@@ -1,0 +1,81 @@
+version: '3'
+
+services:
+    web.kadoe.com:
+        container_name: web.kadoe.com
+        image: 1and1internet/ubuntu-16-apache-php-7.1
+        restart: always
+        volumes:
+            -  /opt/kadoe.com/web:/var/www/html
+        ports:
+            - 10011:8080
+        networks:
+            kadoe:
+                ipv4_address: 172.16.0.3
+        depends_on:
+            - elastic.kadoe.com
+            - db_admin.kadoe.com
+            - db.kadoe.com
+
+    elastic.kadoe.com:
+        container_name: elastic.kadoe.com
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.0.1
+        environment:
+            node.name: 'elastic.kadoe.com'
+            cluster.name: 'elastic-cluster.kadoe.com'
+            discovery.type: 'single-node'
+            bootstrap.memory_lock: 'true'
+            ES_JAVA_OPTS: '-Xms512m -Xmx512m'
+        ulimits:
+            memlock:
+                soft: -1
+                hard: -1
+        volumes:
+            - /opt/kadoe.com/elastic/data:/usr/share/elasticsearch/data
+        ports:
+            - 10012:9200
+        networks:
+            kadoe:
+                ipv4_address: 172.16.0.4
+        
+    db_admin.kadoe.com:
+        container_name: db_admin.kadoe.com
+        image: phpmyadmin/phpmyadmin
+        environment:
+            PMA_HOST: '172.16.0.6'
+        depends_on:
+            - db.kadoe.com
+        restart: always
+        ports:
+            - 10014:80
+        networks:
+            kadoe:
+                ipv4_address: 172.16.0.5
+        depends_on:
+            - db.kadoe.com
+    
+    db.kadoe.com:
+        container_name: db.kadoe.com
+        image: mysql:5.7
+        environment:
+            MYSQL_ROOT_PASSWORD: 'Jm5d9nj3JE2Z5bZ8'
+            MYSQL_ROOT_HOST: '%'
+            MYSQL_DATABASE: 'j2production_ieSh0eit'
+            MYSQL_USER: 'j2production_ieSh0eit'
+            MYSQL_PASSWORD: 'xhrLR7pf4ATX2z5t'
+        volumes:
+            -  /opt/db_storage:/var/lib/mysql
+        restart: always
+        ports:
+            - 10015:3306
+        networks:
+            kadoe:
+                ipv4_address: 172.16.0.6
+        
+networks:
+    kadoe:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: 172.16.0.0/16

@@ -1,0 +1,255 @@
+@extends('representative.layout.master')  
+@section('main_content')
+<!-- Page Content -->
+<div id="page-wrapper">
+<div class="container-fluid">
+<div class="row bg-title">
+   <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+      <h4 class="page-title">{{$page_title or ''}}</h4>
+   </div>
+   <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
+      <ol class="breadcrumb">
+         <li><a href="{{url('/')}}/admin/dashboard">Dashboard</a></li>
+         <li><a href="{{$module_url_path}}">{{$module_title or ''}}</a></li>
+         <li class="active">Add Representative</li>
+      </ol>
+   </div>
+   <!-- /.col-lg-12 -->
+</div>
+<!-- BEGIN Main Content -->
+<div class="row">
+   <div class="col-sm-12">
+      <div class="white-box">
+         @include('admin.layout._operation_status')
+        
+          <form class="form-horizontal" id="validation-form"> 
+            {{ csrf_field() }}
+               
+            <div class="row">
+            <div class="col-sm-6 col-xs-6">
+              <div class="form-group row">
+                  <label class="col-4 col-form-label">First Name<i class="red">*</i></label>
+                  <div class="col-10">
+                     <input type="text" class="form-control" name="first_name" placeholder="Enter First Name" data-parsley-required="true"  />
+                     <span class="red">{{ $errors->first('first_name') }}</span>
+                  </div>
+               </div>
+
+
+                <div class="form-group row">
+                  <label class="col-4 col-form-label">Mobile Number<i class="red">*</i></label>
+                  <div class="col-10">
+                     <input type="text" class="form-control" name="contact_no" placeholder="Enter Mobile No" data-parsley-required="true" data-parsley-length="[6, 16]" data-parsley-type="number"/>
+                     <span class="red">{{ $errors->first('contact_no') }}</span>
+                  </div>
+               </div>
+
+              <div class="form-group row">
+                  <label class="col-4 col-form-label">Password<i class="red">*</i></label>
+                     <div class="col-10">
+                    <input class="form-control" placeholder="Enter Your Password" type="password" name="password" id="password" data-parsley-required="true" data-parsley-pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W+).{8,}" data-parsley-pattern-message="Must contain at least one number and one uppercase and lowercase letter one special character and at least 8 or more characters" data-parsley-minlength="8"/>
+                  </div>
+                </div>
+              
+              <div class="form-group row">
+                <label class="col-4 col-form-label">Confirm Password<i class="red">*</i></label>
+                     <div class="col-10">
+                    <input class="form-control" placeholder="Enter Your Confirm Password" data-parsley-equalto="#password" data-parsley-error-message="Confirm password should be same as password" type="password" name="confirm_password" id="confirm_password" data-parsley-required="true"/>
+                  </div>
+                </div>
+               
+               <div class="form-group row">
+                  <label class="col-4 col-form-label">Complete Address<i class="red">*</i></label>
+                  <div class="col-10">
+                     <input type="text" class="form-control" name="complete_addr" placeholder="Enter Complete Address" data-parsley-required="true" />
+                     <span class="red">{{ $errors->first('complete_addr') }}</span>
+                  </div>
+               </div>
+              
+               <div class="form-group row">
+                  <label class="col-4 col-form-label">Enter State<i class="red">*</i></label>
+                  <div class="col-10">
+                     <input type="text" class="form-control" name="state" placeholder="Enter State Name" data-parsley-required="true" />
+                     <span class="red">{{ $errors->first('state') }}</span>
+                  </div>
+               </div>
+             <div class="user-box">
+                <label class="col-9 col-form-label">Are you buying for a physical retail store?<i class="red">*</i></label>
+                  <select name="buying_status" id="buying_status" class="form-control">
+                      <option>Select</option>
+                      <option value="1">Yes,I am buying for a physical retail store</option>
+                      <option value="2">No,I am buying for an online-only store</option>
+                      <option value="3">No,I am buying for a pop-up shop</option>
+                      <option value="4">None of the above apply</option>
+                    </select>
+                  </div>  
+             </div>
+
+              
+              <div class="col-sm-6 col-xs-6">
+                 <div class="form-group row">
+                  <label class="col-4 col-form-label">Last Name<i class="red">*</i></label>
+                  <div class="col-10">
+                     <input type="text" class="form-control" name="last_name" placeholder="Enter Last Name" data-parsley-required="true"  />
+                     <span class="red">{{ $errors->first('Last_name') }}</span>
+                  </div>
+               </div>
+
+
+                <div class="form-group row">
+                  <label class="col-4 col-form-label">Email<i class="red">*</i></label>
+                  <div class="col-10">
+                     <input type="text" class="form-control" name="email" placeholder="Enter Email" data-parsley-required="true" data-parsley-type="email"/>
+                     <span class="red">{{ $errors->first('email') }}</span>
+                  </div>
+               </div>
+               
+               <div class="form-group row">
+                  <label class="col-4 col-form-label">Enter City<i class="red">*</i></label>
+                  <div class="col-10">
+                     <input type="text" class="form-control" name="city" placeholder="Enter City" data-parsley-required="true" />
+                     <span class="red">{{ $errors->first('complete_addr') }}</span>
+                  </div>
+               </div>
+              
+               <div class="form-group row">
+                  <label class="col-4 col-form-label">Enter Zip Code<i class="red">*</i></label>
+                  <div class="col-10">
+                     <input type="text" class="form-control" name="zip_code" placeholder="Enter Zip Code" data-parsley-required="true"   />
+                     <span class="red">{{ $errors->first('state') }}</span>
+                  </div>
+               </div>
+               <div class="form-group row">
+                <label class="col-4 col-form-label">Country Code<i class="red">*</i></label>
+                  <div class="col-10">
+                    <input class="form-control" placeholder="Enter Your Country Code" type="text" name="country_code" id="country_code" data-parsley-required="true" data-parsley-maxlength="20"/>
+                  </div>
+               </div>
+               <div class="form-group row">
+                <label class="col-4 col-form-label">Country Code<i class="red">*</i></label>
+                  <div class="col-10">
+                    <input class="form-control" placeholder="Enter Your Tax Id" type="text" name="tax_id" id="tax_id" data-parsley-trigger="change" data-parsley-whitespace="trim"  data-parsley-remote="{{ url('/does_exists_tax_id/tax-id') }}"
+                      data-parsley-remote-options='{ "type": "POST", "dataType": "jsonp", "data": { "_token": "{{ csrf_token() }}" }}'   data-parsley-remote-message="Tax Id already exists" data-parsley-length="[9, 9]" data-parsley-length-message ="This value is invalid. It should have 9 digits" data-parsley-type="integer"/>
+                  </div>
+               </div>
+               <div class="user-box">
+                    <label class="col-4 col-form-label">Store Name<i class="red">*</i></label>
+                      <div class="col-10">
+                    <input class="form-control" placeholder="Enter Your Store Name" type="text" name="store_name" id="store_name" data-parsley-maxlength="50"/>
+                  </div>
+                  </div>  
+
+              
+               
+             {{--  <div class="form-group row">
+                  <label class="col-2 col-form-label">Nationality<i class="red">*</i></label>
+                  <div class="col-10">
+                     <input type="text" class="form-control" name="nationality" placeholder="Enter nationality" data-parsley-required="true"  />
+                     <span class="red">{{ $errors->first('nationality') }}</span>
+                  </div>
+               </div>
+
+                 <div class="form-group row">
+                  <label class="col-2 col-form-label">Country_code<i class="red">*</i></label>
+                  <div class="col-10">
+                     <input type="text" class="form-control" name="country_code" placeholder="Enter Country Code " data-parsley-required="true"  />
+                     <span class="red">{{ $errors->first('country_code') }}</span>
+                  </div>
+               </div>
+              
+              <div class="form-group row">
+                  <label class="col-2 col-form-label" for="profile_image">Profile Image <i class="red">*</i></label>
+                  <div class="col-10">
+                     <input type="file" name="profile_image" id="profile_image" class="dropify" data-default-file="{{url('/')}}/uploads/default.jpeg" />
+                  </div>
+               </div>
+               <span>{{ $errors->first('profile_image') }}</span> --}}
+               <div class="form-group row">
+                  <div class="col-md-12 text-center">
+                     <button type="button" class="btn btn-success waves-effect waves-light m-r-10" id = "btn_add" value="Save">Save</button>
+                        <a class="btn btn-inverse waves-effect waves-light" href="{{$module_url_path}}">Back</a>
+                  </div>
+               </div>
+              </form>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+<!-- END Main Content -->
+
+  <script type="text/javascript">
+  const module_url_path = "{{ $module_url_path }}";
+   $(document).ready(function(){
+
+       $('#btn_add').click(function(){
+
+          
+        if($('#validation-form').parsley().validate()==false) return;
+        var formdata = new FormData($("#validation-form")[0]);
+        // var formdata = new FormData($("#validation-form")[0]);
+        
+        
+        $.ajax({
+          url: module_url_path+'/save',
+          type:"POST",
+          data: formdata,
+          contentType:false,
+          processData:false,
+          dataType:'json',
+          beforeSend : function()
+            {
+              showProcessingOverlay();
+              $('#btn_submit').prop('disabled',true);
+              $('#btn_submit').html('Updating... <i class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>');
+            },
+          success:function(data)
+          {
+             hideProcessingOverlay();
+             if('success' == data.status)
+             {
+                 
+                 $('#validation-form')[0].reset();
+
+                 swal({
+                         title:"Success",
+                         text: data.description,
+                         type: data.status,
+                         confirmButtonText: "OK",
+                         closeOnConfirm: false
+                      },
+                     function(isConfirm,tmp)
+                     {
+                       if(isConfirm==true)
+                       {
+                           window.location = data.url;
+                       }
+                     });
+              }
+              else
+              {
+                
+                 swal("Error",data.description,data.status);
+              }  
+          }
+          
+        });   
+
+      });
+   });
+
+    function toggle_status()
+    {
+        var site_status = $('#site_status').val();
+        if(site_status=='1')
+        {
+          $('#site_status').val('1');
+        }
+        else
+        {
+          $('#site_status').val('0');
+        }
+    }
+  
+</script>
+@stop

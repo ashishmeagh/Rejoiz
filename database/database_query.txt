@@ -1,0 +1,2888 @@
+﻿﻿1 July 2019 
+
+1)Change comment for product complete status
+
+ALTER TABLE `products` CHANGE `product_complete_status` `product_complete_status` TINYINT(1) NOT NULL DEFAULT '0' COMMENT '1-step 1,2-step2,3 step,4-complete';
+
+
+*15 July 2019 
+
+2) create quotes_conversations table
+
+ CREATE TABLE `justGotToHaveIt_v1`.`quotes_conversations` ( `id` INT UNSIGNED NOT NULL AUTO_INCREMENT , `quote_id` INT NOT NULL , `sender_id` INT NOT NULL , `receiver_id` INT NOT NULL , `message` TEXT NOT NULL , `attachment` TEXT NOT NULL , `is_viewed` TINYINT NOT NULL COMMENT '0 = not read, 1= read' , `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , `updated_at` TIMESTAMP on update CURRENT_TIMESTAMP NULL DEFAULT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+*18 July 2019 
+
+3)Create new table representative_makers
+
+CREATE TABLE `representative_makers` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `representative_id` int(11) NOT NULL,
+ `maker_id` int(11) NOT NULL,
+ `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+
+ 4) table user_last_active_time created
+ 
+ CREATE TABLE `justGotToHaveIt_v1`.`user_last_active_time` ( `id` INT UNSIGNED NOT NULL AUTO_INCREMENT , `user_id` INT NOT NULL , `last_active_time` TIMESTAMP NOT NULL , `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , `updated_at` TIMESTAMP on update CURRENT_TIMESTAMP NULL DEFAULT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+ 5)Create table for subscription
+
+ CREATE TABLE `email_subscriptipon` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `email` int(11) NOT NULL,
+ `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+ALTER TABLE `representative` ADD `description` TEXT NOT NULL AFTER `id`;
+
+ALTER TABLE category ADD category_image VARCHAR(500) NULL DEFAULT NULL AFTER is_active;
+
+
+ALTER TABLE `representative` CHANGE `description` `description` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+
+ALTER TABLE makers ADD description TEXT NULL DEFAULT NULL AFTER insta_url;
+
+
+
+ALTER TABLE `products` CHANGE `product_complete_status` `product_complete_status` TINYINT(1) NOT NULL DEFAULT '0' COMMENT '1-step 1,2-step2,3 step,4-complete';
+
+
+
+ALTER TABLE `retailer_product_quotes` ADD `sku_no` VARCHAR(255) NULL DEFAULT NULL AFTER `product_id`;
+
+
+*29 July 2019
+
+ALTER TABLE `representative_product_leads` ADD `sku` VARCHAR(256) NULL DEFAULT NULL AFTER `product_id`;
+
+ALTER TABLE `representative_makers` ADD `commission` DECIMAL(16.6) NULL DEFAULT NULL AFTER `maker_id`, ADD `is_confirm` TINYINT(1) NOT NULL DEFAULT '0' AFTER `commission`, ADD `is_lock` TINYINT(1) NOT NULL DEFAULT '0' AFTER `is_confirm`;
+
+
+ALTER TABLE `temp_bag` ADD `user_session_id` TEXT NULL DEFAULT NULL AFTER `ip_address`;
+
+****7 August 2019
+1)ALTER TABLE `representative_leads` ADD `comission` DECIMAL(16.6) NULL DEFAULT NULL AFTER `retailer_id`;
+
+2)ALTER TABLE `representative_leads` ADD `total_commission_wholesale` DECIMAL(16.6) NULL DEFAULT NULL AFTER `total_wholesale_price`;
+
+3)ALTER TABLE `representative_leads` CHANGE `total_commission_wholesale` `total_commission_wholesale` DECIMAL(16,6) NULL DEFAULT NULL;
+
+4)ALTER TABLE `representative_leads` ADD `tot_commi_less_wholesale` DECIMAL(16.6) NULL DEFAULT NULL AFTER `total_commission_wholesale`;
+
+
+
+* 17 Aug 2019
+
+1)ALTER TABLE products CHANGE unit_wholsale_price unit_wholsale_price DECIMAL(6,2) NOT NULL, CHANGE retail_price 
+	retail_price DECIMAL(6,2) NOT NULL;
+
+2)ALTER TABLE products CHANGE unit_wholsale_price unit_wholsale_price DECIMAL(16,6) NOT NULL, CHANGE retail_price 
+	retail_price DECIMAL(16,6) NOT NULL
+
+* 20 Aug 2019
+
+1)ALTER TABLE `representative_leads` CHANGE `total_retail_price` `total_retail_price` DECIMAL(16,6) NOT NULL, CHANGE 
+	`total_wholesale_price` `total_wholesale_price` DECIMAL(16,6) NOT NULL;
+
+2) ALTER TABLE `retailer_product_quotes` CHANGE `retail_price` `retail_price` DECIMAL(16,6) NOT NULL, CHANGE 
+	 `wholesale_price` `wholesale_price` DECIMAL(16,6) NOT NULL;
+
+3) ALTER TABLE `retailer_quotes` CHANGE `total_retail_price` `total_retail_price` DECIMAL(16,6) NOT NULL, CHANGE 
+	 `total_wholesale_price` `total_wholesale_price` DECIMAL(16,6) NOT NULL;
+
+Payment Process....
+
+* 27 Aug 2019
+
+	1) ALTER TABLE `transactions` ADD `customer_token` VARCHAR(255) NOT NULL AFTER `transaction_id`;
+
+	2) ALTER TABLE `retailer_quotes` ADD `customer_token` VARCHAR(255) NOT NULL AFTER `transaction_id`
+
+	3) ALTER TABLE `retailer_quotes` ADD `transaction_id` VARCHAR(255) NOT NULL AFTER `retailer_id`;
+
+	4) ALTER TABLE `retailer_quotes` CHANGE `transaction_id` `transaction_id` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL, CHANGE `customer_token` `customer_token` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+
+	5) RENAME TABLE `justGotToHaveIt_v3`.`retailer_quotes` TO `justGotToHaveIt_v3`.`retailer_transaction`;
+
+	6) RENAME TABLE `justGotToHaveIt_v3`.`retailer_product_quotes` TO `justGotToHaveIt_v3`.`retailer_transaction_detail`;
+
+	7) ALTER TABLE `retailer_transaction_detail` ADD `transaction_id` VARCHAR(255) NOT NULL AFTER `product_id`;
+
+	8) ALTER TABLE `retailer_transaction_detail` CHANGE `transaction_id` `transaction_id` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+
+
+* 28 Aug 2019 
+
+1) ALTER TABLE `transactions` CHANGE `transaction_status` `transaction_status` TINYINT(4) NOT NULL COMMENT '1- processing, 2- authorised, 3- success, 4-failed';
+
+
+* 28 Aug 2019
+
+	9)CREATE TABLE `retailer_quotes` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `maker_id` int(11) DEFAULT NULL,
+ `retailer_id` int(11) NOT NULL,
+ `transaction_id` varchar(255) DEFAULT NULL,
+ `customer_token` varchar(255) DEFAULT NULL,
+ `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0:yes,1:No maker reply',
+ `description` text,
+ `total_retail_price` decimal(16,6) NOT NULL,
+ `total_wholesale_price` decimal(16,6) NOT NULL,
+ `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
+ `deleted_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8
+
+
+10)CREATE TABLE `retailer_product_quotes` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `retailer_quotes_id` int(11) NOT NULL,
+ `product_id` int(11) NOT NULL,
+ `transaction_id` varchar(255) DEFAULT NULL,
+ `sku_no` varchar(255) DEFAULT NULL,
+ `qty` varchar(255) NOT NULL,
+ `retail_price` decimal(16,6) NOT NULL,
+ `wholesale_price` decimal(16,6) NOT NULL,
+ `description` text NOT NULL,
+ `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
+ `deleted_at` timestamp NULL DEFAULT '0000-00-00 00:00:00',
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=68 DEFAULT CHARSET=utf8
+
+
+CREATE TABLE `general_settings` ( `id` int(10) unsigned NOT NULL AUTO_INCREMENT, `data_id` varchar(256) NOT NULL, `data_value` varchar(256) NOT NULL, `type` varchar(50) DEFAULT NULL, `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, `updated_at` timestamp NULL DEFAULT NULL, PRIMARY KEY (`id`) ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8
+
+*29/8/2019
+
+1) ALTER TABLE `card_detail` ADD `stripe_card_id` VARCHAR(255) NOT NULL AFTER `stripe_customer_id`;
+2) ALTER TABLE `card_detail` ADD `stripe_customer_id` VARCHAR(50) NOT NULL AFTER `user_id`;
+
+
+30/Aug/2019
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'Purchase order to maker', 'justgot2haveit subscription', 'ADMIN-justgot2haveit', 'admin@vr.com', '<p>Hello sir/mam</p>\r\n', '##email##~##SITE_URL', NULL, NULL, NULL);
+
+ALTER TABLE retailer_transaction_detail DROP transaction_id;
+
+ALTER TABLE `transactions` ADD `payment_type` TINYINT(1) NOT NULL COMMENT '1-creadit card,2- Net 30' AFTER `transaction_status`;
+
+ALTER TABLE `transactions` ADD `retailer_type` TINYINT(1) NOT NULL COMMENT '1-Via retailer,2 -Via representative' AFTER `payment_type`;
+
+* 2/9/2019
+
+1) ALTER TABLE `retailer_transaction` ADD `order_no` VARCHAR(20) NOT NULL AFTER `id`;
+2) ALTER TABLE `transactions` ADD `card_id` VARCHAR(50) NOT NULL AFTER `customer_token`;
+3) ALTER TABLE `transactions` CHANGE `retailer_type` `retailer_type` TINYINT(1) NOT NULL DEFAULT '1' COMMENT '1-Via retailer,2 -Via representative';
+4) ALTER TABLE retailer_transaction CHANGE ship_status ship_status TINYINT(1) NOT NULL DEFAULT '0' COMMENT '1- processing, 2- authorised, 3- success, 4-failed';
+5)ALTER TABLE `transactions` DROP `transaction_status`;
+6) CREATE TABLE transaction_details (
+id int(10) unsigned NOT NULL AUTO_INCREMENT,
+transaction_id varchar(255) NOT NULL COMMENT 'transactions tbl id',
+product_id int(11) NOT NULL,
+sku_no int(11) NOT NULL,
+maker_id int(11) NOT NULL,
+retailer_id int(11) NOT NULL,
+retail_price decimal(16,6) NOT NULL,
+wholesale_price decimal(16,6) NOT NULL,
+item_qty int(11) NOT NULL,
+created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+updated_at timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
+PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+*3/9/2019
+
+1)ALTER TABLE `transaction_mapping` CHANGE `transaction_status` `transaction_status` TINYINT(1) NOT NULL COMMENT '1- pending, 2- succeeded, 3- failed';
+
+2) ALTER TABLE `transaction_mapping` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT;
+3) ALTER TABLE `transaction_mapping` ADD `amount` DECIMAL(16,6) NOT NULL AFTER `transaction_id`;
+4) ALTER TABLE `transaction_mapping` ADD `order_id` VARCHAR(50) NOT NULL AFTER `user_id`;
+5) ALTER TABLE `retailer_transaction` CHANGE `ship_status` `ship_status` TINYINT(1) NOT NULL DEFAULT '0' COMMENT '1- pending, 2- shipped, 3- failed';
+6) ALTER TABLE `retailer_transaction` CHANGE `ship_status` `ship_status` TINYINT(1) NOT NULL DEFAULT '0' COMMENT '0- pending, 1- shipped, 2- faild';
+
+*4/8/2019
+
+1) ALTER TABLE `transactions` CHANGE `customer_token` `customer_token` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+2) ALTER TABLE `transactions` CHANGE `card_id` `card_id` VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+3) ALTER TABLE `card_detail` ADD `fingerprint` VARCHAR(50) NOT NULL AFTER `stripe_card_id`;
+
+*5/9/2019
+
+ALTER TABLE `retailer_transaction` ADD `ship_date` TIMESTAMP NULL AFTER `ship_status`;
+
+*6/9/2019
+
+1) ALTER TABLE `makers` CHANGE `brand_name` `brand_name` VARCHAR(356) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+
+2) ALTER TABLE `makers` ADD `company_name` VARCHAR(255) NOT NULL AFTER `tax_id`;
+
+3) CREATE TABLE `brands` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `user_id` int(11) NOT NULL,
+ `brand_name` varchar(255) NOT NULL,
+ `is_active` tinyint(1) NOT NULL,
+ `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8
+
+*7/9/2019
+1) ALTER TABLE `brands` ADD `brand_image` VARCHAR(255) NOT NULL AFTER `brand_name`;
+2) ALTER TABLE `products` ADD `brand` INT NOT NULL AFTER `product_name`;
+
+
+
+
+13/9/2019
+
+1)CREATE TABLE `retailer` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `user_id` int(11) NOT NULL,
+ `state` varchar(255) DEFAULT NULL,
+ `city` varchar(255) DEFAULT NULL,
+ `shipping_addr` text,
+ `shipping_zip_postal_code` varchar(255) DEFAULT NULL,
+ `billing_address` text,
+ `billing_zip_postal_code` varchar(255) DEFAULT NULL,
+ `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+ `deleted_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`),
+ KEY `user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+
+
+14/9/2019
+
+1)ALTER TABLE `retailer` ADD `country` VARCHAR(255) NULL DEFAULT NULL AFTER `deleted_at`, ADD `shipping_city` VARCHAR(255) NULL DEFAULT NULL AFTER `country`, ADD `shipping_state` VARCHAR(255) NULL DEFAULT NULL AFTER `shipping_city`, ADD `shipping_country` VARCHAR(255) NULL DEFAULT NULL AFTER `shipping_state`, ADD `billing_city` VARCHAR(255) NULL DEFAULT NULL AFTER `shipping_country`, ADD `billing_state` VARCHAR(255) NULL DEFAULT NULL AFTER `billing_city`, ADD `billing_country` VARCHAR(255) NULL DEFAULT NULL AFTER `billing_state`;
+
+
+
+
+17/9/2019
+
+ALTER TABLE `retailer` ADD `shipping_suit_apt` TEXT NULL DEFAULT NULL AFTER `billing_country`, ADD `billing_suit_apt` TEXT NULL DEFAULT NULL AFTER `shipping_suit_apt`;
+
+
+
+
+
+
+26/9/2019
+
+CREATE TABLE `favorite` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `retailer_id` int(11) DEFAULT NULL,
+ `maker_id` int(11) DEFAULT NULL,
+ `product_id` int(11) NOT NULL,
+ `type` varchar(255) DEFAULT NULL,
+ `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+ `deleted_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+ PRIMARY KEY (`id`,`product_id`),
+ KEY `retailer_id` (`retailer_id`),
+ KEY `maker_id` (`maker_id`),
+ KEY `product_id` (`product_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8
+
+
+
+
+3/10/2019
+
+ALTER TABLE `products` ADD `remark` TEXT NULL DEFAULT NULL AFTER `product_complete_status`;
+ALTER TABLE `products` ADD `is_remark_checked` TINYINT(4) NULL DEFAULT '0' AFTER `is_active`;
+
+
+
+CREATE TABLE `faq` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `question` varchar(256) NOT NULL,
+ `answer` varchar(256) NOT NULL,
+ `faq_for` int(11) NOT NULL COMMENT '1 = retailer, 2 = vendor',
+ `is_active` tinyint(4) NOT NULL,
+ `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+ `updated_at` timestamp NULL DEFAULT NULL,
+ `deleted_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+ALTER TABLE `faq` CHANGE `answer` `answer` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
+
+ 4/10/2019
+
+ ALTER TABLE `faq` CHANGE `is_active` `is_active` TINYINT(4) NOT NULL COMMENT '0 = Deactivate 1 = Activate ';
+ 
+ ALTER TABLE `faq` CHANGE `is_active` `is_active` TINYINT(4) NOT NULL DEFAULT '1' COMMENT '0 = Deactivate 1 = Activate ';
+
+
+
+
+9/10/2019
+
+ALTER TABLE `retailer_transaction` ADD `order_cancel_status` TINYINT NULL DEFAULT NULL COMMENT '1=>pending,2=>canceled' AFTER `billing_addr_zip_code`;
+
+
+ALTER TABLE `products` ADD `shipping_charges` VARCHAR(250) NOT NULL AFTER `available_qty`, ADD `shipping_condition` VARCHAR(250) NOT NULL AFTER `shipping_charges`;
+
+ALTER TABLE `products` CHANGE `shipping_condition` `shipping_type` TINYINT NOT NULL COMMENT '1 = Free Shipping, 2 = % off, 3 = $ off';
+
+ALTER TABLE `products` ADD `minimum_amount_off` VARCHAR(250) NOT NULL AFTER `shipping_type`, ADD `off_type` VARCHAR(250) NOT NULL AFTER `minimum_amount_off`;
+
+
+
+10/10/2019
+
+ALTER TABLE `retailer_transaction` CHANGE `order_cancel_status` `order_cancel_status` TINYINT(4) NULL DEFAULT NULL COMMENT '0=>not canceled,1=>pending,2=>canceled';
+
+ALTER TABLE `products` CHANGE `off_type` `off_type_amount` VARCHAR(250) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
+
+
+12/10/2019
+
+ALTER TABLE `representative_product_leads` ADD `maker_id` INT NOT NULL AFTER `representative_leads_id`, ADD `is_confirm` TINYINT(1) NOT NULL DEFAULT '0' COMMENT '0=>yes,1 => no' AFTER `maker_id`;
+
+12/10/2019
+
+
+CREATE TABLE `catlogs` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `maker_id` int(11) DEFAULT NULL,
+ `catalog_name` varchar(255) DEFAULT NULL,
+ `is_active` enum('1','0') NOT NULL DEFAULT '1',
+ `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+ `deleted_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`),
+ KEY `maker_id` (`maker_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+
+
+CREATE TABLE `catlogs_images` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `catalog_id` int(11) DEFAULT NULL,
+ `image` text,
+ `sequence` int(11) DEFAULT NULL,
+ `is_active` enum('1','0') NOT NULL DEFAULT '1' COMMENT '1=>active , 0=>block',
+ `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+ `deleted_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`),
+ KEY `maker_id` (`catalog_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+
+
+
+
+14/10/2019
+
+ALTER TABLE `retailer_transaction` ADD `payment_term` VARCHAR(255) NULL DEFAULT NULL AFTER `order_cancel_status`, ADD `payment_due_date` VARCHAR(255) NULL DEFAULT NULL AFTER `payment_term`;
+
+15/10/2019
+
+INSERT INTO `roles` (`id`, `slug`, `name`, `permissions`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'sales_manager', 'Sales Manager', NULL, NULL, NULL, NULL);
+
+16/10/2019
+
+
+ALTER TABLE representative_leads ADD order_no VARCHAR(15) NOT NULL AFTER id;
+
+17/10/2019
+
+ALTER TABLE representative ADD sales_manager_id INT(11) NULL DEFAULT NULL AFTER user_id;
+
+ALTER TABLE sales_manager ADD area_id INT(11) NULL DEFAULT NULL AFTER user_id;
+
+added table rep_area
+
+ALTER TABLE `representative_leads` ADD `order_no` VARCHAR(15) NOT NULL AFTER `id`;
+
+ALTER TABLE `representative_leads` CHANGE `is_confirm` `is_confirm` TINYINT(1) NOT NULL COMMENT '0=&gt;Not confirm,1=&gt;Confirm,0=>yes,1 => no,2=>&gt;confirm_requested';
+
+ALTER TABLE `representative_leads` CHANGE `is_confirm` `is_confirm` TINYINT(1) NOT NULL COMMENT '0=Not confirm,1=Confirm,2=>confirm_requested,3=rejected';
+
+ALTER TABLE representative_leads ADD order_no VARCHAR(15) NOT NULL AFTER id;
+
+18/10/2019
+
+
+ALTER TABLE `representative_leads` CHANGE `total_wholesale_price` `total_wholesale_price` DECIMAL(16,6) NOT NULL;
+
+
+
+date 18/10/2019
+
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'Email Notification', '##SUBJECT##', 'Drealte - Admin', 'admin@reblock.com', '<p>Hello&nbsp; ##USER_NAME##,<br /><br />##MESSAGE##</p>\r\n<div style=\"text-align: center;\">&nbsp;</div>\r\n<div style=\"text-align: center;\"><strong>You can check details, by clicking on following button</strong></div>\r\n<div style=\"text-align: center;\">&nbsp;</div>\r\n<div style=\"text-align: center;\">&nbsp;</div>\r\n<div style=\"text-align: center;\">##HTML##</div>\r\n<p><br />Thanks and Regards,<br />##APP_NAME##</p>', '##USER_NAME##~##MESSAGE##~##SUBJECT##~##HTML##', '2019-10-18 00:00:00', '2019-10-18 00:00:00', NULL);
+
+
+UPDATE `email_template` SET `template_from` = 'Just Got 2 Have IT - Admin', `template_from_mail` = 'admin@justgot2haveit.com', `updated_at` = NULL WHERE `email_template`.`id` = 40;
+
+21/10/2019
+
+ALTER TABLE `addresses` ADD `order_no` VARCHAR(25) NOT NULL AFTER `user_id`;
+
+
+
+22/10/2019
+
+ALTER TABLE `users` ADD `is_login` TINYINT NOT NULL DEFAULT '0' COMMENT '0=>first time login,1=>arleady loggedin this only for retailer' AFTER `last_login`;
+
+
+
+
+
+
+25/10/2019
+
+CREATE TABLE `promotions` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `maker_id` int(11) DEFAULT NULL,
+ `title` varchar(255) DEFAULT NULL,
+ `from_date` date DEFAULT NULL,
+ `to_date` date DEFAULT NULL,
+ `is_active` enum('0','1') NOT NULL DEFAULT '1',
+ `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+ `deleted_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`),
+ KEY `maker_id` (`maker_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+
+CREATE TABLE `promotions_offer` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `promotion_type_id` int(11) DEFAULT NULL,
+ `promotion_id` int(11) DEFAULT NULL,
+ `minimum_ammount` int(11) DEFAULT NULL,
+ `discount` int(11) DEFAULT NULL,
+ `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+ `deleted_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+
+CREATE TABLE `promotions_type` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `promotion_type_name` varchar(255) DEFAULT NULL,
+ `is_active` enum('0','1') NOT NULL DEFAULT '1',
+ `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+ `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+ `deleted_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8
+
+
+4/11/2019
+
+
+ALTER TABLE `representative_leads` ADD `ship_date` TIMESTAMP NULL DEFAULT NULL AFTER `ship_status`;
+
+
+
+
+
+6/11/2019
+
+ALTER TABLE `promotions` ADD `promo_code` VARCHAR(255) NULL DEFAULT NULL AFTER `to_date`;
+
+07/11/2019
+
+ALTER TABLE retailer_transaction_detail ADD shipping_charge DECIMAL(16,6) NULL DEFAULT NULL AFTER wholesale_price, ADD shipping_discount DECIMAL(16,6) NOT NULL AFTER shipping_charge;
+
+ALTER TABLE retailer_transaction_detail CHANGE shipping_discount shipping_discount DECIMAL(16,6) NULL DEFAULT NULL;
+
+ALTER TABLE rep_area  ADD status TINYINT NOT NULL COMMENT '1- active, 0 - inactive'  AFTER area_name,  ADD created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP  AFTER status,  ADD updated_at TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL  AFTER created_at,  ADD deleted_at TIMESTAMP NULL DEFAULT NULL  AFTER updated_at;
+
+07/11/2019
+
+CREATE TABLE `vendor_representative_mapping` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `representative_id` int(11) NOT NULL,
+ `vendor_id` int(11) NOT NULL,
+ `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+
+
+9/11/2019
+
+ALTER TABLE `representative` ADD `area_id` INT NULL DEFAULT NULL AFTER `sales_manager_id`, ADD INDEX (`area_id`);
+
+14/11/2019
+
+ALTER TABLE representative_leads ADD sales_manager_id INT(255) NULL DEFAULT NULL AFTER representative_id;
+
+
+
+
+
+19/11/2019
+
+
+CREATE TABLE `rep_area` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `area_name` text DEFAULT NULL,
+ `state_id` varchar(255) NOT NULL,
+ `category_id` varchar(255) NOT NULL,
+ `status` tinyint(4) NOT NULL COMMENT '1- active, 0 - inactive',
+ `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+ `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE current_timestamp(),
+ `deleted_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`),
+ KEY `state_id` (`state_id`),
+ KEY `category_id` (`category_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8
+
+
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Alabama', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Alaska', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Arizona', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Arkansas', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'California', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Colorado', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Connecticut', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Delaware', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Florida', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Georgia', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Hawaii', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Idaho', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Illinois', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Indiana', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Iowa', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Kansas', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Kentucky', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Louisiana', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Maine', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Maryland', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Massachusetts', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Michigan', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Minnesota', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Mississippi', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Missouri', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Montana', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Nebraska', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Nevada', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'New Hampshire', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'New Jersey', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'New Mexico', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'New York', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'North Carolina', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'North Dakota', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Ohio', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Oklahoma', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Oregon', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Pennsylvania', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Rhode Island', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'South Carolina', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'South Dakota', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Tennessee', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Texas', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Utah', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Vermont', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Virginia', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Washington', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'West Virginia', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Wisconsin', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+INSERT INTO `states` (`id`, `name`, `country_id`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Wyoming', '2', current_timestamp(), '0000-00-00 00:00:00.000000', NULL);
+
+
+
+
+ALTER TABLE `rep_area` ADD `state_id` INT(255) NOT NULL AFTER `area_name`, ADD `category_id` INT(255) NOT NULL AFTER `state_id`, ADD INDEX (`state_id`), ADD INDEX (`category_id`);
+
+
+
+
+20/11/2019
+
+ALTER TABLE `representative_product_leads` ADD `product_discount` DECIMAL(16,6) NULL AFTER `description`;
+
+ALTER TABLE `representative_product_leads` ADD `shipping_charges` DECIMAL(16,6) NULL DEFAULT NULL AFTER `product_discount`, ADD `shipping_charges_discount` DECIMAL(16,6) NULL DEFAULT NULL AFTER `shipping_charges`;
+
+
+ALTER TABLE `representative_leads` ADD `total_product_discount` DECIMAL(16,6) NULL DEFAULT NULL AFTER `description`;
+
+ALTER TABLE `representative_leads` ADD `total_shipping_charges` DECIMAL(16,6) NULL DEFAULT NULL AFTER `total_product_discount`;
+
+ALTER TABLE `representative_leads` ADD `total_shipping_discount` DECIMAL(16,6) NULL DEFAULT NULL AFTER `total_shipping_charges`;
+
+
+23/11/2019
+
+
+ALTER TABLE `representative` ADD `category_id` VARCHAR(255) NULL DEFAULT NULL AFTER `area_id`, ADD INDEX (`category_id`);
+
+
+from server taken
+
+ALTER TABLE `products` ADD `prodduct_dis_type` TINYINT(4) NULL DEFAULT NULL AFTER `off_type_amount`, ADD `product_dis_min_amt` DECIMAL(16,6) NULL DEFAULT NULL AFTER `prodduct_dis_type`, ADD `product_discount` DECIMAL(16,6) NULL DEFAULT NULL AFTER `product_dis_min_amt`;
+
+
+
+
+*************
+for set Null by default
+ALTER TABLE `products` CHANGE `off_type_amount` `off_type_amount` VARCHAR(250) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+
+
+25/11/2019
+
+ALTER TABLE `representative_product_leads` ADD `product_shipping_charge` DECIMAL(16,6) NULL DEFAULT NULL AFTER `shipping_charges_discount`;
+
+ALTER TABLE `representative_leads` ADD `total_product_shipping_charges` DECIMAL(16,6) NULL DEFAULT NULL AFTER `total_shipping_discount`;
+
+
+
+
+
+26/11/2019
+
+INSERT INTO `cities` (`id`, `name`, `state_id`) VALUES (NULL, 'Alexander ', '1');
+
+
+
+
+18/12/2019
+ALTER TABLE `addresses` ADD `bill_country` INT NULL DEFAULT NULL AFTER `ship_state`, ADD `ship_country` INT NULL DEFAULT NULL AFTER `bill_country`;
+
+
+
+
+
+19/12/2019
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'Split Order Email', 'justgot2haveit subscription', 'ADMIN-justgot2haveit', 'admin@vr.com', '<p>Dear Sir/Madam,</p>\r\n<p>Your order has been split successfully please check attachment for further details</p>\r\n<p>Thanks and Regards, &nbsp; &nbsp; &nbsp;</p>\r\n<p>Just got2 Have it Team&nbsp; &nbsp; </p>\r\n<p>&nbsp;</p>', '##email##~##SITE_URL', NULL, NULL, '2019-12-19 00:00:00');
+
+
+
+20/12/2019
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'Split Order Email To Admin', 'justgot2haveit subscription', 'ADMIN-justgot2haveit', 'admin@vr.com', '<p>Dear Sir/Madam,</p>\r\n<p>Order has been splited successfully please check attachment for further details</p>\r\n<p>Thanks and Regards, &nbsp; &nbsp; &nbsp;</p>\r\n<p>Just got2 Have it Team&nbsp; &nbsp; </p>\r\n<p>&nbsp;</p>', '##email##~##SITE_URL', NULL, NULL, '2019-12-20 00:00:00');
+
+
+
+24/12/2019
+
+ALTER TABLE `promotions` ADD `description` TEXT NULL DEFAULT NULL AFTER `promo_code`;
+
+
+27/12/2019
+
+INSERT INTO `promotions_type` (`id`, `promotion_type_name`, `is_active`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, '$ Off', '1', CURRENT_TIMESTAMP, '2019-12-27 00:00:00', NULL);
+
+
+
+
+2/1/2020
+
+CREATE TABLE `promo_code` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `promo_code_name` varchar(255) DEFAULT NULL,
+ `vendor_id` int(11) DEFAULT NULL,
+ `status` varchar(255) DEFAULT NULL,
+ `is_active` enum('1','0') NOT NULL DEFAULT '1' COMMENT '1=&gt;active,0=&gt;deactive',
+ `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+ `deleted_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
+
+
+ALTER TABLE `promotions` CHANGE `promo_code` `promo_code` INT NULL DEFAULT NULL;
+
+
+INSERT INTO `promotions_type` (`id`, `promotion_type_name`, `is_active`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'Free Shipping', '1', CURRENT_TIMESTAMP, NULL, NULL);
+
+INSERT INTO `promotions_type` (`id`, `promotion_type_name`, `is_active`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, '% Off', '1', CURRENT_TIMESTAMP, NULL, NULL);
+
+
+CREATE TABLE `promo_code_retailer_mapping` (
+ `id` int(11) NOT NULL,
+ `retailer_id` int(11) DEFAULT NULL,
+ `promo_code_id` int(11) DEFAULT NULL,
+ `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+ `update_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+ `deleted_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
+
+ALTER TABLE `promo_code_retailer_mapping` CHANGE `update_at` `updated_at` TIMESTAMP on update CURRENT_TIMESTAMP NULL DEFAULT NULL;
+
+
+4/1/2019
+
+ALTER TABLE `representative_leads` CHANGE `total_retail_price` `total_retail_price` FLOAT NULL DEFAULT NULL;
+
+ALTER TABLE `representative_product_leads` CHANGE `retail_price` `retail_price` FLOAT NULL DEFAULT NULL;
+
+ALTER TABLE `retailer_transaction_detail` CHANGE `retail_price` `retail_price` FLOAT NULL DEFAULT NULL;
+
+ALTER TABLE `retailer_transaction` CHANGE `total_retail_price` `total_retail_price` FLOAT NULL DEFAULT NULL;
+
+ALTER TABLE `retailer_transaction_detail` CHANGE `unit_wholsale_price` `unit_wholsale_price` FLOAT NULL DEFAULT NULL;
+
+ALTER TABLE `retailer_transaction_detail` CHANGE `wholesale_price` `wholesale_price` FLOAT NULL DEFAULT NULL;
+
+
+16-1-2020
+
+ALTER TABLE `notifications` ADD `notification_url` TEXT NULL DEFAULT NULL AFTER `status`;
+
+ALTER TABLE `retailer_transaction` ADD `promotion_discount` DECIMAL(16,6) NULL DEFAULT NULL AFTER `payment_due_date`, ADD `promo_code` VARCHAR(50) NULL DEFAULT NULL AFTER `promotion_discount`;
+
+ALTER TABLE `representative_leads` ADD `promotion_discount` DECIMAL(16,6) NULL DEFAULT NULL AFTER `total_product_shipping_charges`;
+
+ALTER TABLE `representative_leads` ADD `promo_code` VARCHAR(50) NULL DEFAULT NULL AFTER `promotion_discount`;
+
+ALTER TABLE `temp_bag` ADD `is_reorder` ENUM('0','1') NOT NULL DEFAULT '0' COMMENT '0=>general_order , 1=>reorder' AFTER `product_data`;
+
+ALTER TABLE `representative_leads` ADD `is_reorder` ENUM('1','0') NOT NULL DEFAULT '0' COMMENT '0=>general_order,1=>reorder' AFTER `total_product_shipping_charges`;
+
+
+
+16-1-2020
+
+ALTER TABLE `notifications` ADD `notification_url` TEXT NULL DEFAULT NULL AFTER `status`;
+
+20-01-2020
+Auth : Jaydip
+ALTER TABLE `products` CHANGE `product_discount` `product_discount` FLOAT NULL DEFAULT NULL;
+
+22-01-2020
+Auth: Bhagyashri
+
+ALTER TABLE `products` ADD `previous_category_status` ENUM('0','1') NOT NULL DEFAULT '0' COMMENT '1= active, 0=deactive' AFTER `remark`;
+
+23-01-2020
+Auth : Jaydip
+
+ALTER TABLE `users` ADD INDEX(`email`);
+ALTER TABLE `users` ADD INDEX(`tax_id`);
+ALTER TABLE `users` ADD INDEX(`first_name`);
+ALTER TABLE `users` ADD INDEX(`last_name`);
+ALTER TABLE `users` ADD INDEX(`auth_id`);
+ALTER TABLE `users` ADD INDEX(`state_id`);
+ALTER TABLE `users` ADD INDEX(`country_id`);
+ALTER TABLE `users` ADD INDEX(`city_id`);
+ALTER TABLE `users` ADD INDEX(`post_code`);
+ALTER TABLE `users` ADD INDEX(`kyc_status`);
+ALTER TABLE `users` ADD INDEX(`buying_status`);
+ALTER TABLE `users` ADD INDEX(`status_net_30`);
+ALTER TABLE `users` ADD INDEX(`store_name`);
+ALTER TABLE `users` ADD INDEX(`status`);
+ALTER TABLE `users` ADD INDEX(`is_approved`);
+ALTER TABLE `users` ADD INDEX(`commission`);
+ALTER TABLE `users` ADD INDEX(`is_stripe_connected`);
+ALTER TABLE `users` ADD INDEX(`created_at`);
+ALTER TABLE `users` ADD INDEX(`deleted_at`);
+ALTER TABLE `users` ADD INDEX(`is_login`);
+ALTER TABLE `users` ADD INDEX(`last_login`);
+
+ALTER TABLE `transaction_mapping` ADD INDEX(`user_id`);
+ALTER TABLE `transaction_mapping` ADD INDEX(`order_id`);
+ALTER TABLE `transaction_mapping` ADD INDEX(`order_no`);
+ALTER TABLE `transaction_mapping` ADD INDEX(`transaction_id`);
+ALTER TABLE `transaction_mapping` ADD INDEX(`amount`);
+ALTER TABLE `transaction_mapping` ADD INDEX(`transaction_status`);
+ALTER TABLE `transaction_mapping` ADD INDEX(`payment_type`);
+ALTER TABLE `transaction_mapping` ADD INDEX(`created_at`);
+
+ALTER TABLE `transaction_details` ADD INDEX(`transaction_id`);
+ALTER TABLE `transaction_details` ADD INDEX(`product_id`);
+ALTER TABLE `transaction_details` ADD INDEX(`sku_no`);
+ALTER TABLE `transaction_details` ADD INDEX(`maker_id`);
+ALTER TABLE `transaction_details` ADD INDEX(`retailer_id`);
+ALTER TABLE `transaction_details` ADD INDEX(`retail_price`);
+ALTER TABLE `transaction_details` ADD INDEX(`wholesale_price`);
+
+ALTER TABLE `transactions` ADD INDEX(`paid_by`);
+ALTER TABLE `transactions` ADD INDEX(`card_id`);
+ALTER TABLE `transactions` ADD INDEX(`transaction_id`);
+ALTER TABLE `transactions` ADD INDEX(`received_by`);
+ALTER TABLE `transactions` ADD INDEX(`amount`);
+ALTER TABLE `transactions` ADD INDEX(`payment_type`);
+ALTER TABLE `transactions` ADD INDEX(`retailer_type`);
+ALTER TABLE `transactions` ADD INDEX(`paid_on`);
+ALTER TABLE `transactions` ADD INDEX(`payment_response`);
+ALTER TABLE `transactions` ADD INDEX(`created_at`);
+
+ALTER TABLE `temp_bag` CHANGE `user_session_id` `user_session_id` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL;
+ALTER TABLE `temp_bag` CHANGE `user_session_id` `user_session_id` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+ALTER TABLE `temp_bag` ADD INDEX(`user_id`);
+ALTER TABLE `temp_bag` ADD INDEX(`ip_address`);
+ALTER TABLE `temp_bag` ADD INDEX(`is_reorder`);
+ALTER TABLE `temp_bag` CHANGE `user_session_id` `user_session_id` VARCHAR(256) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+ALTER TABLE `temp_bag` ADD INDEX(`user_session_id`);
+
+ALTER TABLE `subcategory_translation` ADD INDEX(`subcategory_id`);
+ALTER TABLE `subcategory_translation` ADD INDEX(`subcategory_name`);
+ALTER TABLE `subcategory_translation` ADD INDEX(`subcategory_slug`);
+ALTER TABLE `subcategory_translation` ADD INDEX(`locale`);
+ALTER TABLE `subcategory_translation` ADD INDEX(`created_at`);
+
+
+ALTER TABLE `subcategory` ADD INDEX(`category_id`);
+ALTER TABLE `subcategory` ADD INDEX(`is_active`);
+ALTER TABLE `subcategory` ADD INDEX(`created_at`);
+
+ALTER TABLE `stripe_transactions` ADD INDEX(`lead_id`);
+ALTER TABLE `stripe_transactions` ADD INDEX(`quote_id`);
+ALTER TABLE `stripe_transactions` ADD INDEX(`paid_by`);
+ALTER TABLE `stripe_transactions` ADD INDEX(`received_by`);
+ALTER TABLE `stripe_transactions` ADD INDEX(`transfer_id`);
+ALTER TABLE `stripe_transactions` ADD INDEX(`transaction_id`);
+ALTER TABLE `stripe_transactions` ADD INDEX(`destination_payment`);
+ALTER TABLE `stripe_transactions` ADD INDEX(`amount`);
+ALTER TABLE `stripe_transactions` ADD INDEX(`status`);
+ALTER TABLE `stripe_transactions` ADD INDEX(`created_at`);
+ALTER TABLE `stripe_transactions` ADD INDEX(`updated_at`);
+
+ALTER TABLE `stripe_account_details` ADD INDEX(`user_id`);
+ALTER TABLE `stripe_account_details` ADD INDEX(`stripe_acc_id`);
+ALTER TABLE `stripe_account_details` ADD INDEX(`stripe_customer_id`);
+ALTER TABLE `stripe_account_details` ADD INDEX(`created_at`);
+ALTER TABLE `stripe_account_details` ADD INDEX(`updated_at`);
+
+ALTER TABLE `store_images` CHANGE `updated_at` `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE `store_images` ADD INDEX(`maker_id`);
+
+ALTER TABLE `static_pages_translation` CHANGE `updated_at` `updated_at` DATETIME on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+ALTER TABLE `static_pages` ADD INDEX(`is_active`);
+ALTER TABLE `static_pages` ADD INDEX(`created_at`);
+
+ALTER TABLE `states` CHANGE `updated_at` `updated_at` TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+
+ALTER TABLE `states` ADD INDEX(`name`);
+ALTER TABLE `states` ADD INDEX(`country_id`);
+ALTER TABLE `states` ADD INDEX(`created_at`);
+
+ALTER TABLE `site_settings` ADD INDEX(`representative_commission`);
+ALTER TABLE `site_settings` ADD INDEX(`commission`);
+ALTER TABLE `site_settings` ADD INDEX(`site_status`);
+
+ALTER TABLE `shop_settings` ADD INDEX(`maker_id`);
+ALTER TABLE `shop_settings` ADD INDEX(`first_order_minimum`);
+ALTER TABLE `shop_settings` ADD INDEX(`re_order_minimum`);
+ALTER TABLE `shop_settings` ADD INDEX(`vacation_mode_end`);
+ALTER TABLE `shop_settings` ADD INDEX(`vacation_mode_start`);
+ALTER TABLE `shop_settings` ADD INDEX(`shop_lead_time_max`);
+ALTER TABLE `shop_settings` ADD INDEX(`shop_lead_time_min`);
+ALTER TABLE `shop_settings` ADD INDEX(`shop_lead_time`);
+ALTER TABLE `shop_settings` ADD INDEX(`schedule_orders`);
+
+ALTER TABLE `sales_manager` ADD INDEX(`user_id`);
+ALTER TABLE `sales_manager` ADD INDEX(`area_id`);
+
+
+ALTER TABLE `role_users` ADD INDEX(`user_id`);
+ALTER TABLE `role_users` ADD INDEX(`role_id`);
+
+ALTER TABLE `roles` ADD INDEX(`slug`);
+ALTER TABLE `roles` ADD INDEX(`name`);
+
+ALTER TABLE `retailer_transaction_detail` ADD INDEX(`retailer_quotes_id`);
+ALTER TABLE `retailer_transaction_detail` ADD INDEX(`product_id`);
+ALTER TABLE `retailer_transaction_detail` ADD INDEX(`sku_no`);
+ALTER TABLE `retailer_transaction_detail` ADD INDEX(`qty`);
+
+ALTER TABLE `retailer_transaction` ADD INDEX(`order_no`);
+ALTER TABLE `retailer_transaction` ADD INDEX(`maker_id`);
+ALTER TABLE `retailer_transaction` ADD INDEX(`retailer_id`);
+ALTER TABLE `retailer_transaction` ADD INDEX(`transaction_id`);
+ALTER TABLE `retailer_transaction` ADD INDEX(`ship_status`);
+ALTER TABLE `retailer_transaction` ADD INDEX(`maker_confirmation`);
+ALTER TABLE `retailer_transaction` ADD INDEX(`ship_date`);
+ALTER TABLE `retailer_transaction` ADD INDEX(`is_split_order`);
+ALTER TABLE `retailer_transaction` ADD INDEX(`split_order_id`);
+ALTER TABLE `retailer_transaction` ADD INDEX(`total_wholesale_price`);
+ALTER TABLE `retailer_transaction` ADD INDEX(`promo_code`);
+ALTER TABLE `retailer_transaction` ADD INDEX(`order_cancel_status`);
+ALTER TABLE `retailer_transaction` ADD INDEX(`payment_term`);
+ALTER TABLE `retailer_transaction` ADD INDEX(`created_at`);
+
+ALTER TABLE `retailer_store_details` ADD INDEX(`retailer_id`)
+
+ALTER TABLE `retailer_representative_mapping` ADD INDEX(`retailer_id`);
+ALTER TABLE `retailer_representative_mapping` ADD INDEX(`representative_id`);
+
+ALTER TABLE `retailer_quotes` ADD INDEX(`maker_id`);
+ALTER TABLE `retailer_quotes` ADD INDEX(`retailer_id`);
+ALTER TABLE `retailer_quotes` ADD INDEX(`transaction_id`);
+ALTER TABLE `retailer_quotes` ADD INDEX(`status`);
+ALTER TABLE `retailer_quotes` ADD INDEX(`total_retail_price`)
+ALTER TABLE `retailer_quotes` ADD INDEX(`total_wholesale_price`);
+
+ALTER TABLE `retailer_product_quotes` ADD INDEX(`retailer_quotes_id`);
+ALTER TABLE `retailer_product_quotes` ADD INDEX(`product_id`);
+ALTER TABLE `retailer_product_quotes` ADD INDEX(`sku_no`);
+ALTER TABLE `retailer_product_quotes` ADD INDEX(`wholesale_price`);
+
+ALTER TABLE `retailer_credit_limit` ADD INDEX(`user_id`);
+
+ALTER TABLE `retailer` ADD INDEX(`user_id`);
+ALTER TABLE `retailer` ADD INDEX(`store_name`);
+ALTER TABLE `retailer` ADD INDEX(`billing_zip_postal_code`);
+ALTER TABLE `retailer` ADD INDEX(`country`);
+
+ALTER TABLE `rep_area` CHANGE `updated_at` `updated_at` TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+ALTER TABLE `rep_area` ADD INDEX(`state_id`);
+ALTER TABLE `rep_area` ADD INDEX(`category_id`);
+ALTER TABLE `rep_area` ADD INDEX(`status`);
+
+
+
+
+
+date 29/1/2020
+
+Priyanka
+
+CREATE TABLE `category_division` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `cat_division_name` varchar(255) DEFAULT NULL,
+ `is_active` tinyint(4) DEFAULT NULL,
+ `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+ `deleted_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`),
+ KEY `cat_division_name` (`cat_division_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
+
+ALTER TABLE `rep_area` ADD `area_type` VARCHAR(255) NULL DEFAULT NULL AFTER `status`;
+
+
+
+
+date 30/1/2020
+
+
+ALTER TABLE `sales_manager` ADD `category_id` INT NULL DEFAULT NULL AFTER `area_id`, ADD INDEX (`category_id`);
+
+
+
+
+Date 12 Feb 2020
+
+ALTER TABLE `zip_extraction` ADD `user_id` INT(11) NULL DEFAULT NULL AFTER `id`;
+
+
+
+
+date 17 feb 2020
+
+CREATE TABLE `catalog_pages` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `catalog_id` int(11) DEFAULT NULL,
+ `sequence` int(11) DEFAULT NULL,
+ `page_type` varchar(255) DEFAULT NULL,
+ `is_active` int(11) NOT NULL,
+ `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+ `deleted_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`),
+ KEY `catalog_id` (`catalog_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
+
+
+ALTER TABLE `catlogs_images` ADD `sku` VARCHAR(255) NULL DEFAULT NULL AFTER `deleted_at`, ADD `product_id` INT NULL DEFAULT NULL AFTER `sku`;
+
+ALTER TABLE `catlogs_images` CHANGE `sequence` `page_sequence` INT(11) NULL DEFAULT NULL;
+
+ALTER TABLE `catlogs_images` ADD `catalog_page_id` INT NULL DEFAULT NULL AFTER `catalog_id`, ADD INDEX (`catalog_page_id`);
+
+
+
+CREATE TABLE `catlogs_images` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `catalog_id` int(11) DEFAULT NULL,
+ `catalog_page_id` int(11) DEFAULT NULL,
+ `image` text,
+ `sku` varchar(255) DEFAULT NULL,
+ `product_id` int(11) DEFAULT NULL,
+ `is_active` enum('1','0') NOT NULL DEFAULT '1' COMMENT '1=>active , 0=>block',
+ `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+ `deleted_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`),
+ KEY `maker_id` (`catalog_id`),
+ KEY `catalog_id` (`catalog_id`),
+ KEY `is_active` (`is_active`),
+ KEY `catalog_page_id` (`catalog_page_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8
+
+
+ALTER TABLE `catalog_pages` CHANGE `is_active` `is_active` TINYINT(11) NOT NULL;
+
+
+
+
+
+
+****** Jaydip / 18 Feb 2020 ************
+
+1) ALTER TABLE `zip_extraction` CHANGE `deleted_at` `deleted_date` TIMESTAMP NULL DEFAULT NULL;
+2) ALTER TABLE `zip_extraction` CHANGE `deleted_date` `delete_date` TIMESTAMP NULL DEFAULT NULL;
+3) ALTER TABLE `zip_extraction` ADD `is_deleted` TINYINT(1) NOT NULL DEFAULT '0' COMMENT '0=>not deleted,1=>deleted' AFTER `deleted_date`;
+
+ALTER TABLE `zip_extraction` ADD `is_deleted` TINYINT(1) NOT NULL DEFAULT '0' AFTER `delete_date`;
+
+
+date 26 feb 2020
+
+CREATE TABLE `catalog_pdf` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `vendor_id` int(11) DEFAULT NULL,
+ `pdf_file` text,
+ `is_active` tinyint(4) DEFAULT NULL,
+ `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+ `deleted_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`),
+ KEY `vendor_id` (`vendor_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
+
+
+ALTER TABLE `catalog_pdf` ADD `catalog_name` VARCHAR(255) NULL DEFAULT NULL AFTER `pdf_file`;
+
+ALTER TABLE `catalog_pdf` ADD `cover_image` TEXT NULL DEFAULT NULL AFTER `catalog_name`;
+
+
+
+
+
+date 27 feb 2020
+
+CREATE TABLE `catalog_pdf_image` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `catalog_id` int(11) DEFAULT NULL,
+ `page_sequence` int(11) DEFAULT NULL,
+ `image` text,
+ `is_active` tinyint(4) DEFAULT NULL,
+ `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+ `deleted_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`),
+ KEY `catalog_id` (`catalog_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
+
+
+
+
+date 4/2/2020
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'Confirm Order to admin', 'Confirm Order', 'Vendor', ' \r\nadmin@vr.com', '<p>Hello Admin</p>\r\n<p>order no: ##order_no## has been confirmed successfully! , <br /><label>$##deducted_amount## </label>deducted from retailer account,</p>\r\n\r\n<p>Thanks and regards&nbsp;</p>\r\n<p>Kadoe</p>', '##deducted_amount##~##order_no##', NULL, '2020-03-04 00:00:00', NULL);
+
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'Purchase order to admin', 'Order placed by retailer', 'Admin-Kadoe', 'admin@vr.com', '<p>Hello Admin,</p>\r\n<p>Order has generated successfully please check attachment for further details</p>\r\n<p>Thanks and Regards, &nbsp; &nbsp; &nbsp;</p>\r\n<p>&nbsp;Kadoe</p>\r\n<p>&nbsp;</p>', '##email##~##SITE_URL', NULL, '2020-03-04 00:00:00', NULL);
+
+
+
+date 5/2/2020
+
+CREATE TABLE `order_tracking_details` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `company_id` int(11) DEFAULT NULL,
+ `order_id` int(11) DEFAULT NULL,
+ `order_no` varchar(255) DEFAULT NULL,
+ `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+ `deleted_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`),
+ KEY `order_id` (`order_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
+
+
+ALTER TABLE `site_settings` CHANGE `salesmanager_commision` `salesmanager_commission` INT(11) NOT NULL;
+
+ALTER TABLE `site_settings` CHANGE `salesmanager_commission` `salesmanager_commission` DECIMAL(10,2) NOT NULL;
+
+
+
+
+date 9/2/2020
+
+ALTER TABLE `retailer_representative_mapping` ADD `sales_manager_id` INT NULL DEFAULT NULL AFTER `representative_id`, ADD INDEX (`sales_manager_id`);
+
+
+Copy table vendor_representative_mapping to vendor_salesmanager_mapping
+
+ALTER TABLE `vendor_salesmanager_mapping` CHANGE `representative_id` `salesmanager_id` INT(11) NOT NULL;
+
+Truncate table 
+
+
+date 16/3/2020
+
+ALTER TABLE `products` ADD `is_archive` TINYINT(4) NULL DEFAULT '0' COMMENT '0=\'not archived\',1=\'archived\'' AFTER `is_active`;
+
+
+date 18/03/2020
+
+ALTER TABLE `site_settings` CHANGE `representative_commission` `representative_commission` DECIMAL(16,6) NOT NULL;
+
+date : 25/03/2020
+
+ALTER TABLE `users` CHANGE `commission` `commission` FLOAT(5) NULL DEFAULT NULL;
+
+
+
+date 23/03/2020
+
+ALTER TABLE `retailer_transaction` ADD `maker_commission_status` TINYINT NULL DEFAULT NULL COMMENT '0=>pending,1=>paid' AFTER `payment_term`;
+
+
+
+30/03/2020
+
+ALTER TABLE `retailer_transaction` CHANGE `order_cancel_status` `order_cancel_status` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0=>not canceled,1=>pending,2=>canceled';
+
+
+
+date 31/3/2020
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'Insufficient Inventory Mail', 'Insufficient Inventory Mail', 'Admin-Kadoe', 'admin@vr.com', '<p>Hello ##USER_NAME##</p>\r\n<p>Following product having insufficient inventory: </p>\r\n<p>##HTML##</p>\r\n<p>&nbsp;</p>\r\n<p>##APP_NAME##</p>\r\n<p>&nbsp;</p>', '##USER_NAME##~##HTML##~##APP_NAME##', NULL, NULL, NULL);
+
+
+31-03-2020
+
+CREATE TABLE `refund` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `order_id` int(11) NOT NULL,
+ `order_no` varchar(10) NOT NULL,
+ `transaction_id` text NOT NULL,
+ `amount` decimal(16,10) NOT NULL,
+ `balance_transaction` text NOT NULL,
+ `status` int(11) NOT NULL COMMENT '1-pending, 2-success, 3- failed',
+ `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+ `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+
+ALTER TABLE `retailer_transaction` ADD `refund_status` INT NOT NULL DEFAULT '0' COMMENT '0= no, 1= Yes' AFTER `order_cancel_status`;
+
+																										 
+02 April 2020 
+CREATE TABLE `state_zip_code` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `area_id` int(11) NOT NULL,
+ `state_id` int(11) NOT NULL,
+ `zip_code` varchar(255) NOT NULL,
+ `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1
+
+
+
+1/4/2020
+
+ALTER TABLE `representative_leads` ADD `order_cancel_status` TINYINT NULL DEFAULT NULL COMMENT '0=>not canceled,1=>pending,2=>canceled' AFTER `total_product_shipping_charges`;
+
+ALTER TABLE `representative_leads` CHANGE `order_cancel_status` `order_cancel_status` TINYINT(4) NULL DEFAULT '0' COMMENT '0=>not canceled,1=>pending,2=>canceled';
+
+
+1/4/2020
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (52, 'Order cancel mail', 'Order Cancel', 'Admin-Kadoe', 'admin@vr.com', '<p>Dear Sir/Madam,</p>\r\n<p>Order ##ORDER_NO## has been canceled successfully please check attachment for further details</p>\r\n<p>Thanks and Regards, &nbsp; &nbsp; &nbsp;</p>\r\n<p>Kadoe</p>\r\n<p>&nbsp;</p>', '##ORDER_NO##', NULL, NULL, NULL);
+
+
+2/4/2020
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES ('53', 'Order Ship Mail', 'Order Ship Mail', 'Admin-Kadoe', 'admin@vr.com', '<p>Hello ##USER_NAME##</p>\r\n<p>##HTML## ##ORDER_NO##</p>\r\n<p>Shipping Company : ##COMPANY##</p>\r\n<p>Tracking Number : ##TRACKING_URL## \r\n (Click on the Tracking Number to Track the Shipment)</p>\r\n\r\n<p>&nbsp;</p>\r\n<p>Thanks and Regards</p>\r\n<p>Kadoe</p>\r\n<p>&nbsp;</p>', '##USER_NAME##~##ORDER_NO##~##COMPANY##~##TRACKING_URL##', NULL, NULL, NULL);
+
+
+
+3/4/2020
+
+ALTER TABLE `representative_leads` ADD `refund_status` INT NULL DEFAULT NULL COMMENT '0= no, 1= Yes' AFTER `order_cancel_status`;
+
+ALTER TABLE `representative_leads` CHANGE `refund_status` `refund_status` INT(11) NULL DEFAULT '0' COMMENT '0= no, 1= Yes';
+
+
+date 21/4/2020
+
+ALTER TABLE `products` ADD `product_status` TINYINT NULL DEFAULT '1' AFTER `product_discount`;
+
+ALTER TABLE `products`  ADD `is_deleted` TINYINT NULL DEFAULT '0' COMMENT '0=\'not deleted\',1=\'deleted\''  AFTER `product_status`;
+
+ALTER TABLE `products_details` ADD `is_deleted` TINYINT NULL DEFAULT '0' COMMENT '0=&#039;not deleted&#039;,1=&#039;deleted&#039;' AFTER `height`;
+
+ALTER TABLE `product_images` ADD `is_deleted` TINYINT NULL DEFAULT '0' COMMENT '0=\"not deleted\",1=\"deleted\"' AFTER `packaging_image`;
+
+ALTER TABLE `product_inventory` ADD `is_deleted` TINYINT NULL DEFAULT '0' COMMENT '0=\"not deleted\",1=\"deleted\"' AFTER `quantity`
+
+ALTER TABLE `product_sub_categories` ADD `is_deleted` TINYINT NULL DEFAULT '0' COMMENT '0=\"not deleted\",1=\"deleted\"' AFTER `sub_category_id`
+
+
+Date 22/04/2020
+
+ALTER TABLE `products` CHANGE `is_archive` `is_archive` TINYINT(4) NULL DEFAULT '0' COMMENT '0=\'not archived\',1=\'archived\'';
+
+
+Date:  23/04/2020
+
+INSERT INTO `roles` (`id`, `slug`, `name`, `permissions`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'customer', 'Customer', NULL, '2020-04-13 19:10:15', '2020-04-13 19:10:15', NULL);
+
+
+24/04/2020
+
+ALTER TABLE `makers` ADD `is_direct_payment` TINYINT(1) NOT NULL DEFAULT '0' COMMENT '0=>not allowed,1=>allowed' AFTER `user_id`; 
+
+ALTER TABLE `transactions` CHANGE `retailer_type` `retailer_type` TINYINT(1) NOT NULL DEFAULT '1' COMMENT '1-Via retailer,2 -Via representative, 3 - Via Customer';
+
+
+
+Created Table influencer_settings
+CREATE TABLE `influencer_settings` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `sales_target` int(11) NOT NULL,
+ `reward_amount` decimal(16,8) NOT NULL,
+ `discount_on_promo_code` decimal(16,8) NOT NULL COMMENT 'In percentage',
+ `created_at` timestamp NULL DEFAULT current_timestamp(),
+ `updated_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4
+
+
+
+INSERT INTO `roles` (`id`, `slug`, `name`, `permissions`, `created_at`, `updated_at`, `deleted_at`) VALUES (NULL, 'influencer', 'Influencer', NULL, '2020-04-24 00:00:00', '2020-04-24 00:00:00', NULL);
+
+27/04/2020
+
+ALTER TABLE `shop_settings` ADD `split_order_free_shipping` TINYINT NOT NULL DEFAULT '0' COMMENT '0=\"No\" 1=\"Yes\"' AFTER `shop_story`;
+
+1) RENAME TABLE `justgot2haveit_v5`.`stripe_account_details` TO `justgot2haveit_v5`.`admin_connected_stripe_account_details`; 
+
+2) CREATE TABLE `stripe_account_details` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `user_id` int(11) NOT NULL,
+ `test_key` varchar(50) NOT NULL,
+ `secret_key` varchar(50) NOT NULL,
+ `is_admin_authorize` tinyint(1) NOT NULL DEFAULT 0,
+ `is_vendor_authorize` tinyint(1) NOT NULL DEFAULT 0,
+ `created_at` timestamp NULL DEFAULT NULL,
+ `updated_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+
+
+
+28/04/2020
+
+1) CREATE TABLE `stripe_vendor_retailer_mapping` (
+   `id` int(11) NOT NULL AUTO_INCREMENT,
+   `vendor_id` int(11) NOT NULL,
+   `user_id` int(11) NOT NULL,
+   `stripe_customer_id` varchar(50) NOT NULL,
+   `created_at` timestamp NULL DEFAULT NULL,
+   `updated_at` timestamp NULL DEFAULT NULL,
+   PRIMARY KEY (`id`)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+
+2) CREATE TABLE `stripe_card_mapping` (
+   `id` int(11) NOT NULL AUTO_INCREMENT,
+   `card_id` int(11) NOT NULL COMMENT 'forenkey of card table',
+   `vendor_id` int(11) NOT NULL,
+   `stripe_card_id` varchar(50) NOT NULL,
+   `created_at` timestamp NULL DEFAULT NULL,
+   `updated_at` timestamp NULL DEFAULT NULL,
+   PRIMARY KEY (`id`)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+
+
+3) created influencer_promo_code table
+CREATE TABLE `influencer_promo_code` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `promo_code_name` varchar(255) DEFAULT NULL,
+ `vendor_id` int(11) DEFAULT NULL,
+ `is_active` tinyint(4) NOT NULL DEFAULT 1 COMMENT '0 - In active, 1 - Active',
+ `is_assigned` tinyint(4) NOT NULL DEFAULT 0 COMMENT '0 - Not Assigned to influencer, 1 - Assigned to influencer',
+ `created_at` timestamp NULL DEFAULT NULL,
+ `updated_at` timestamp NULL DEFAULT NULL,
+ `deleted_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`),
+ KEY `vendor_id` (`vendor_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4
+
+
+28/04/2020
+
+1) CREATE TABLE `promo_code_influencer_mapping` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `influencer_promo_code_id` int(11) DEFAULT NULL COMMENT 'Primary key (id) from influencer_promo_code table',
+ `influencer_id` int(11) DEFAULT NULL COMMENT 'Primary key (id) from user table',
+ `created_at` timestamp NULL DEFAULT NULL,
+ `updated_at` timestamp NULL DEFAULT NULL,
+ `deleted_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`),
+ KEY `influencer_promo_code_id` (`influencer_promo_code_id`),
+ KEY `influencer_id` (`influencer_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4
+
+
+29/04/2020
+
+ALTER TABLE `products` ADD `ingrediants` TEXT NULL AFTER `brand`;
+
+ALTER TABLE `products_details` ADD `color` VARCHAR(256) NULL DEFAULT NULL AFTER `sku`;
+
+
+07/05/2020
+
+CREATE TABLE `b2c_privacy_settings` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `is_b2c_module_on` tinyint(4) NOT NULL COMMENT '0 - Off, 1 - On',
+ `is_influencer_module_on` tinyint(4) NOT NULL COMMENT '0 - Off, 1 - On',
+ `created_at` timestamp NULL DEFAULT NULL,
+ `updated_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+
+
+
+CREATE TABLE `customer` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `user_id` int(11) NOT NULL,
+ `state` varchar(255) DEFAULT NULL,
+ `city` varchar(255) DEFAULT NULL,
+ `address2` varchar(255) DEFAULT NULL,
+ `shipping_addr` text DEFAULT NULL,
+ `shipping_zip_postal_code` varchar(255) DEFAULT NULL,
+ `billing_address` text DEFAULT NULL,
+ `billing_zip_postal_code` varchar(255) DEFAULT NULL,
+ `years_in_business` varchar(50) DEFAULT NULL,
+ `annual_sales` varchar(50) DEFAULT NULL,
+ `store_description` varchar(500) DEFAULT NULL,
+ `store_name` varchar(50) DEFAULT NULL,
+ `store_website` varchar(255) DEFAULT NULL,
+ `country` varchar(255) DEFAULT NULL,
+ `shipping_city` varchar(255) DEFAULT NULL,
+ `shipping_state` varchar(255) DEFAULT NULL,
+ `shipping_country` varchar(255) DEFAULT NULL,
+ `billing_city` varchar(255) DEFAULT NULL,
+ `billing_state` varchar(255) DEFAULT NULL,
+ `billing_country` varchar(255) DEFAULT NULL,
+ `shipping_suit_apt` text DEFAULT NULL,
+ `billing_suit_apt` text DEFAULT NULL,
+ `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+ `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
+ `deleted_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`),
+ KEY `user_id` (`user_id`),
+ KEY `store_name` (`store_name`),
+ KEY `billing_zip_postal_code` (`billing_zip_postal_code`),
+ KEY `country` (`country`)
+) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8
+
+
+
+CREATE TABLE `customer_favorite` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `customer_id` int(11) DEFAULT NULL,
+ `maker_id` int(11) DEFAULT NULL,
+ `product_id` int(11) NOT NULL,
+ `type` varchar(255) DEFAULT NULL,
+ `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+ `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
+ `deleted_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`,`product_id`),
+ KEY `retailer_id` (`customer_id`),
+ KEY `maker_id` (`maker_id`),
+ KEY `product_id` (`product_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8
+
+
+
+CREATE TABLE `customer_transaction` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `order_no` varchar(20) NOT NULL,
+ `maker_id` int(11) DEFAULT NULL,
+ `customer_id` int(11) NOT NULL,
+ `transaction_id` varchar(255) DEFAULT NULL,
+ `ship_status` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0- pending, 1- shipped, 2- faild',
+ `maker_confirmation` tinyint(1) DEFAULT NULL COMMENT '0=>not confirmed,1=>confirm',
+ `ship_date` timestamp NULL DEFAULT NULL,
+ `is_split_order` enum('0','1') DEFAULT '0' COMMENT '0 => Unsplited, 1 => Splited ',
+ `split_order_id` int(11) DEFAULT NULL,
+ `description` text DEFAULT NULL,
+ `total_retail_price` float DEFAULT NULL,
+ `total_wholesale_price` float DEFAULT NULL,
+ `shipping_addr` text DEFAULT NULL,
+ `shipping_addr_zip_code` varchar(25) DEFAULT NULL,
+ `billing_addr` text DEFAULT NULL,
+ `billing_addr_zip_code` varchar(25) DEFAULT NULL,
+ `order_cancel_status` tinyint(4) NOT NULL DEFAULT 0 COMMENT '0=>not canceled,1=>pending,2=>canceled',
+ `refund_status` int(11) NOT NULL DEFAULT 0 COMMENT '0= no, 1= Yes',
+ `promotion_discount` decimal(16,6) DEFAULT NULL,
+ `promo_code` varchar(50) DEFAULT NULL,
+ `payment_term` varchar(255) DEFAULT NULL,
+ `maker_commission_status` tinyint(4) DEFAULT NULL COMMENT '0=>pending,1=>paid',
+ `payment_due_date` varchar(255) DEFAULT NULL,
+ `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+ `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
+ `deleted_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`),
+ KEY `order_no` (`order_no`),
+ KEY `maker_id` (`maker_id`),
+ KEY `retailer_id` (`customer_id`),
+ KEY `transaction_id` (`transaction_id`),
+ KEY `ship_status` (`ship_status`),
+ KEY `maker_confirmation` (`maker_confirmation`),
+ KEY `ship_date` (`ship_date`),
+ KEY `is_split_order` (`is_split_order`),
+ KEY `split_order_id` (`split_order_id`),
+ KEY `total_wholesale_price` (`total_wholesale_price`),
+ KEY `promo_code` (`promo_code`),
+ KEY `order_cancel_status` (`order_cancel_status`),
+ KEY `payment_term` (`payment_term`),
+ KEY `created_at` (`created_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=utf8
+
+
+CREATE TABLE `customer_transaction_detail` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `customer_quotes_id` int(11) NOT NULL,
+ `product_id` int(11) NOT NULL,
+ `sku_no` varchar(255) DEFAULT NULL,
+ `qty` varchar(255) NOT NULL,
+ `retail_price` float DEFAULT NULL,
+ `unit_retail_price` float DEFAULT NULL,
+ `wholesale_price` float DEFAULT NULL,
+ `shipping_charge` decimal(16,6) DEFAULT NULL,
+ `shipping_discount` decimal(16,6) DEFAULT NULL,
+ `product_discount` decimal(16,6) DEFAULT NULL,
+ `description` text NOT NULL,
+ `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+ `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
+ `deleted_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`),
+ KEY `product_id` (`product_id`),
+ KEY `sku_no` (`sku_no`),
+ KEY `qty` (`qty`),
+ KEY `customer_quotes_id` (`customer_quotes_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8
+
+
+
+
+CREATE TABLE `promo_code_customer_mapping` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `customer_id` int(11) DEFAULT NULL,
+ `promo_code_id` int(11) DEFAULT NULL,
+ `created_at` timestamp NULL DEFAULT current_timestamp(),
+ `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
+ `deleted_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`),
+ KEY `retailer_id` (`customer_id`),
+ KEY `promo_code_id` (`promo_code_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1
+1) CREATE TABLE `b2c_privacy_settings` (
+	 `id` int(11) NOT NULL AUTO_INCREMENT,
+	 `is_b2c_module_on` tinyint(4) NOT NULL COMMENT '0 - Off, 1 - On',
+	 `is_influencer_module_on` tinyint(4) NOT NULL COMMENT '0 - Off, 1 - On',
+	 `created_at` timestamp NULL DEFAULT NULL,
+	 `updated_at` timestamp NULL DEFAULT NULL,
+	 PRIMARY KEY (`id`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+
+2) ALTER TABLE `retailer_transaction` ADD `is_direct_payment` TINYINT(1) NOT NULL DEFAULT '0' COMMENT '0 => 
+   no, 1 => yes' AFTER `retailer_id`; 
+
+3) ALTER TABLE `representative_leads` ADD `is_direct_payment` TINYINT(1) NOT NULL DEFAULT '0' COMMENT '0 => no, 1 => yes' AFTER `retailer_id`; 
+
+
+13/05/2020
+
+1) ALTER TABLE `influencer_settings` CHANGE `sales_target` `sales_target` DECIMAL(16,8) NOT NULL;
+
+14/05/2020
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'credit amount', 'ADMIN', 'Admin-Kadoe', 'admin@vr.com', '<p>Hello sir/Mam,</p>\r\n<p>Your order has been confirmed successfully! , <br /><label>$##credit_amount## </label>credited in your account,</p>\r\n<p>order no: ##order_no##</p>\r\n<p>Thanks and regards&nbsp;</p>\r\n<p>Kadoe</p>', '##credit_amount##~##order_no##', NULL, '2019-09-27 17:19:56', '2020-01-14 16:15:04');
+
+14/05/2020
+
+1) ALTER TABLE `influencer_promo_code` CHANGE `vendor_id` `vendor_id` INT(11) NULL DEFAULT NULL COMMENT 'If vendor_id = 0, then admin has created the promo code';
+
+2) ALTER TABLE `influencer_settings` ADD `promo_code_validity_in_days` INT NOT NULL AFTER `discount_on_promo_code`;
+
+3) ALTER TABLE `promo_code_influencer_mapping` ADD `expiry_date` TIMESTAMP NULL DEFAULT NULL COMMENT 'It wil be expiry date for assigned promo code' AFTER `influencer_id`;
+
+
+
+16/05/20
+
+ 1) ALTER TABLE `products_details` ADD `sku_product_description` TEXT NULL DEFAULT NULL AFTER `height`;
+
+15/05/2020
+
+1) ALTER TABLE `promo_code_influencer_mapping` CHANGE `expiry_date` `expiry_date` DATE NULL DEFAULT NULL COMMENT 'It wil be expiry date for assigned promo code';
+
+
+18/05/2020
+
+1) ALTER TABLE `customer_transaction` ADD `influencer_id` INT NOT NULL DEFAULT '0' COMMENT 'When customer will apply the promo code then this field will be used' AFTER `customer_id`, ADD INDEX (`influencer_id`);
+
+2) ALTER TABLE `customer_transaction` ADD `is_reward_transfer` TINYINT NULL DEFAULT '0' COMMENT 'Reward will transfer to influencer, if customer apply the promo code. 1 = Transfer reward to influencer, 0 - Not Transfer' AFTER `ship_date`;
+
+3) ALTER TABLE `users` ADD `influencer_reward_amount` DECIMAL(16,4) NULL DEFAULT NULL COMMENT 'Influencer Reward Amount' AFTER `is_login`;
+
+4) CREATE TABLE `influencer_rewards` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `influencer_id` int(11) DEFAULT NULL,
+ `reward_amount` decimal(16,8) DEFAULT NULL,
+ `created_at` timestamp NULL DEFAULT NULL,
+ `updated_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`),
+ KEY `influencer_id` (`influencer_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4
+
+5) DELIMITER $$
+CREATE TRIGGER updateInfluencerRewardAmount 
+AFTER INSERT ON influencer_rewards 
+FOR EACH ROW BEGIN 
+		UPDATE users u 
+        	SET u.influencer_reward_amount = u.influencer_reward_amount + new.reward_amount 
+            WHERE u.id = new.influencer_id;
+END;$$
+DELIMITER ;
+
+6) ALTER TABLE `users` CHANGE `influencer_reward_amount` `influencer_reward_amount` DECIMAL(16,4) NULL DEFAULT '0' COMMENT 'Influencer Reward Amount';
+
+19/05/2020
+
+1) UPDATE users SET influencer_reward_amount = 0;
+
+2) ALTER TABLE `users` CHANGE `influencer_reward_amount` `influencer_reward_amount` DECIMAL(16,4) NOT NULL DEFAULT '0.0000' COMMENT 'Influencer Reward Amount';
+
+
+20/5/2020
+
+ALTER TABLE `retailer_transaction` ADD `order_rejected_reason` TEXT NULL DEFAULT NULL AFTER `payment_due_date`;
+
+ALTER TABLE `representative_leads` ADD `order_rejected_reason` TEXT NULL DEFAULT NULL AFTER `is_reorder`;
+
+19/05/2020 (Developer : Jaydip)
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'retailer Net30-online/credit payment', 'ADMIN', 'Admin-Kadoe', 'admin@vr.com', '<p>Hello sir/Mam,</p>\r\n<p>Your order (##order_no##) is confirmed,amount : $##deducted_amount## is deducted from your account once user generate the Net30 payment.</p>\r\n<p>order no: ##order_no##</p>\r\n<p>Thanks and regards&nbsp;</p>\r\n<p>Kadoe</p>', '##deducted_amount##~##order_no##', NULL, '2019-09-27 17:19:56', '2020-01-14 16:15:04'); 
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'vendor Net30-online/credit payment', 'ADMIN', 'Admin-Kadoe', 'admin@vr.com', '<p>Hello sir/Mam,</p>\r\n<p>Your order (##order_no##) is confirmed,amount : $##credit_amount## is credited to your account once user generate the Net30 payment.</p>\r\n<p>order no: ##order_no##</p>\r\n<p>Thanks and regards&nbsp;</p>\r\n<p>Kadoe</p>', '##credit_amount##~##order_no##', NULL, '2019-09-27 17:19:56', '2020-01-14 16:15:04'); 
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'Net30 order confirm', 'ADMIN', 'Admin-Kadoe', 'admin@vr.com', '<p>Hello sir/Mam,</p>\r\n<p>Net30 order(##order_no##) is confirmed from vendor : ##vendor_name##.</p>\r\n<p>order no: ##order_no##</p>\r\n<p>Thanks and regards&nbsp;</p>\r\n<p>Kadoe</p>', '##vendor_name##~##order_no##', NULL, '2019-09-27 17:19:56', '2020-01-14 16:15:04'); 
+
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'vendor Net30-online/credit payment', 'ADMIN', 'Admin-Kadoe', 'admin@vr.com', '<p>Hello sir/Mam,</p>\r\n<p>Your Net30 order (##order_no##) is confirmed,amount : $##credit_amount## is credited in your account.</p>\r\n<p>order no: ##order_no##</p>\r\n<p>Thanks and regards&nbsp;</p>\r\n<p>Kadoe</p>', '##credit_amount##~##order_no##', NULL, '2019-09-27 17:19:56', '2020-01-14 16:15:04'); 
+
+
+20/05/2020 (Developer : Akshay )
+
+ALTER TABLE `quotes_conversations` ADD `is_customer_viewed` TINYINT(4) NOT NULL AFTER `is_retailer_viewed`;
+
+CREATE TABLE `stripe_vendor_customer_mapping` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `vendor_id` int(11) NOT NULL,
+ `user_id` int(11) NOT NULL,
+ `stripe_customer_id` varchar(50) NOT NULL,
+ `created_at` timestamp NULL DEFAULT NULL,
+ `updated_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+
+
+20/05/2020 (Developer - Bhavana)
+
+1) ALTER TABLE `influencer_rewards` ADD `paid_by` INT NULL DEFAULT NULL AFTER `reward_amount`, ADD `received_by` INT NULL DEFAULT NULL AFTER `paid_by`, ADD `transfer_id` VARCHAR(100) NULL DEFAULT NULL AFTER `received_by`, ADD `transaction_id` VARCHAR(100) NULL DEFAULT NULL AFTER `transfer_id`, ADD `destination_payment` VARCHAR(200) NULL DEFAULT NULL AFTER `transaction_id`, ADD `status` TINYINT NOT NULL DEFAULT '1' COMMENT '1 = Pending, 2 = Success , 3 = Failed' AFTER `destination_payment`, ADD INDEX (`paid_by`), ADD INDEX (`received_by`), ADD INDEX (`transfer_id`), ADD INDEX (`transaction_id`);
+
+2) ALTER TABLE `users` ADD `influencer_remaining_order_amount` DECIMAL(16,8) NOT NULL DEFAULT '0' AFTER `influencer_reward_amount`;
+
+
+3) ALTER TABLE `customer_transaction` CHANGE `is_reward_transfer` `is_considered_for_calculation` TINYINT(4) NULL DEFAULT '0' COMMENT 'If customer order is considered for influencer reward calculation then we update this field as 1. For reward calculation we matches that influencer customer order with sales target which is set by admin. Influencer customer order means customer applied influencer promo code. 1 - Considered, 0 - Not Considered. ';
+
+4) ALTER TABLE `customer_transaction` CHANGE `is_considered_for_calculation` `is_considered_for_calculation` TINYINT(4) NOT NULL DEFAULT '0' COMMENT 'If customer order is considered for influencer reward calculation then we update this field as 1. For reward calculation we matches that influencer customer order with sales target which is set by admin. Influencer customer order means customer applied influencer promo code. 1 - Considered, 0 - Not Considered. ';
+
+5) ALTER TABLE `influencer_rewards` ADD `description` TEXT NULL DEFAULT NULL COMMENT 'If some error occur then we will store into this field, like stripe transaction fail, influencer is not connected to admin stripe account etc.' AFTER `status`;
+
+6) ALTER TABLE `influencer_rewards` ADD `admin_settled_sales_target` DECIMAL(16,8) NULL DEFAULT NULL AFTER `reward_amount`, ADD `admin_settled_reward_amount` DECIMAL(16,8) NULL DEFAULT NULL AFTER `admin_settled_sales_target`, ADD `total_order_amount` DECIMAL(16,8) NULL DEFAULT NULL AFTER `admin_settled_reward_amount`, ADD `used_order_amount` DECIMAL(16,8) NULL DEFAULT NULL AFTER `total_order_amount`, ADD `carry_forward_amount` DECIMAL(16,8) NULL DEFAULT NULL AFTER `used_order_amount`;
+
+7) ALTER TABLE `influencer_rewards` ADD `order_ids` VARCHAR(255) NULL DEFAULT NULL COMMENT 'Order ids - Which orders we have taken for calculating the order amount' AFTER `influencer_id`;
+
+
+22 May 2020 (Developer -> Shital)
+ALTER TABLE `retailer_transaction` ADD `order_cancel_rejected_status` TINYINT(1) NOT NULL COMMENT '0=>pending,1=>cancel and reject' AFTER `order_cancel_status`;
+
+
+24 May 2020 (Devloper : Jaydip)
+
+ALTER TABLE `admin_connected_stripe_account_details` ADD `vendor_id` INT(10) NOT NULL DEFAULT '0' AFTER `user_id`; 
+
+ALTER TABLE `stripe_account_details` ADD `client_id` VARCHAR(50) NULL DEFAULT NULL AFTER `secret_key`; 
+
+ALTER TABLE `customer_transaction`  ADD `is_direct_payment` TINYINT NOT NULL DEFAULT '0' COMMENT '0 => no, 1 => yes'  AFTER `customer_id`;
+
+INSERT INTO `general_settings` (`id`, `data_id`, `data_value`, `type`, `created_at`, `updated_at`) VALUES (NULL, 'STRIPE_CLIENT_ID', '', 'admin', CURRENT_TIMESTAMP, NULL);
+
+
+25 May 2020 (Developer - Bhavana)
+
+ALTER TABLE `promo_code_influencer_mapping` ADD `assigned_date` DATE NULL DEFAULT NULL COMMENT 'It will be start date for assigned promo code' AFTER `influencer_id`;
+
+27 May 2020 (Developer - Akshay)
+
+ALTER TABLE `customer_transaction` ADD `order_rejected_reason` TEXT NULL DEFAULT NULL AFTER `payment_due_date`;
+
+
+27 May 2020 (Developer - Bhavana)
+
+ALTER TABLE `promo_code_customer_mapping` ADD `customer_quotes_id` INT NULL DEFAULT NULL AFTER `id`, ADD INDEX (`customer_quotes_id`);
+
+
+29/5/2020 (Developer : priyanka)
+
+ALTER TABLE `customer_transaction` ADD `order_cancel_rejected_status` TINYINT(1) NOT NULL COMMENT '0=>pending,1=>cancel and reject' AFTER `order_cancel_status`;
+
+ALTER TABLE `order_tracking_details` ADD `tracking_no` TEXT NULL DEFAULT NULL AFTER `order_no`;
+
+29/5/2020 (Developer - Bhavana)
+
+ALTER TABLE `customer_transaction` ADD `promo_code_id` INT NULL DEFAULT NULL AFTER `promo_code`, ADD INDEX (`promo_code_id`);
+
+
+05/06/2020 (Developer : Jaydip)
+
+ALTER TABLE `stripe_account_details` CHANGE `secret_key` `secret_key` VARCHAR(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL
+
+
+6 June 2020 (Developer - Bhavana)
+
+UPDATE `email_template` SET `template_html` = '<p>Hello Admin</p>\r\n<p>order no: ##order_no## has been confirmed successfully! , <br /><label>$##deducted_amount## </label>deducted from ##user_role## account,</p>\r\n\r\n<p>Thanks and regards&nbsp;</p>\r\n<p>Kadoe</p>', `template_variables` = '##deducted_amount##~##order_no##~##user_role##', `deleted_at` = NULL, `updated_at` = NULL WHERE `email_template`.`id` = 47;
+
+
+UPDATE `email_template` SET `template_subject` = 'Order Shipped' WHERE `email_template`.`id` = 53;
+
+
+8 June 2020 (Developer - Bhavana)
+
+ALTER TABLE `influencer_rewards` ADD `previous_remaining_order_amount` DECIMAL(16,8) NULL DEFAULT NULL AFTER `used_order_amount`;
+
+ALTER TABLE `influencer_rewards` CHANGE `previous_remaining_order_amount` `previous_carry_forward_amount` DECIMAL(16,8) NULL DEFAULT NULL;
+
+ALTER TABLE `influencer_rewards` ADD `current_order_amount` DECIMAL(16,8) NULL DEFAULT NULL AFTER `admin_settled_reward_amount`;
+
+
+date 11/6/2020
+
+ALTER TABLE `stripe_transactions` ADD `customer_order_id` INT NOT NULL AFTER `quote_id`;
+
+
+18 June 2020 (Developer - Akshay)
+
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES ('62', 'Get Rewards', 'Get Rewards', 'Admin-Kadoe', 'admin@kadoe.com', '<p>&nbsp;</p>\r\n<p>&nbsp;Hello<strong> ##USER_FNAME##, </strong></p>\r\n<div style=\"text-align: left;\">&nbsp;</div>\r\n<div style=\"text-align: left;\">##EMAIL_DESCRIPTION##</div>\r\n<div style=\"text-align: left;\">&nbsp;</div>\r\n<div style=\"text-align: left;\">&nbsp;</div>\r\n<div style=\"text-align: center;\">&nbsp;</div>\r\n<div style=\"text-align: center;\">&nbsp;</div>\r\n<div style=\"text-align: center;\">##REDIRECTION_URL## .<br /><br /></div>\r\n<div>&nbsp;</div>\r\n<div>&nbsp;</div>\r\n<div>&nbsp;</div>\r\n<div>Thanks and Regards,<br />&nbsp;##APP_NAME##</div>', '##USER_FNAME##~##EMAIL_DESCRIPTION##~##REDIRECTION_URL##~##APP_NAME##', NULL, '2020-06-19 22:49:56', '2020-06-19 21:31:00')
+
+
+
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES ('63', 'Assigned Promo Code', 'Assigned Promo Code', 'Admin-Kadoe', 'admin@kadoe.com', '<p>&nbsp;</p>\r\n<p>&nbsp;Hello<strong> ##USER_FNAME##, </strong></p>\r\n<div style=\"text-align: left;\">&nbsp;</div>\r\n<div style=\"text-align: left;\">##EMAIL_DESCRIPTION##</div>\r\n<div style=\"text-align: left;\">&nbsp;</div>\r\n<div style=\"text-align: left;\">&nbsp;</div>\r\n<div style=\"text-align: center;\">&nbsp;</div>\r\n<div style=\"text-align: center;\">&nbsp;</div>\r\n<div style=\"text-align: center;\">##REDIRECTION_URL## .<br /><br /></div>\r\n<div>&nbsp;</div>\r\n<div>&nbsp;</div>\r\n<div>&nbsp;</div>\r\n<div>Thanks and Regards,<br />&nbsp;##APP_NAME##</div>', '##USER_FNAME##~##EMAIL_DESCRIPTION##~##REDIRECTION_URL##~##APP_NAME##', NULL, '2020-06-19 22:49:56', '2020-06-19 21:31:00')
+
+
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES ('64', 'Influencers Promo Code Used', 'Your promo code has been used', 'Admin-Kadoe', 'admin@kadoe.com', '<p>&nbsp;</p>\r\n<p>&nbsp;Hello<strong> ##USER_FNAME##, </strong></p>\r\n<div style=\"text-align: left;\">&nbsp;</div>\r\n<div style=\"text-align: left;\">##EMAIL_DESCRIPTION##</div>\r\n<div style=\"text-align: left;\">&nbsp;</div>\r\n<div style=\"text-align: left;\">&nbsp;</div>\r\n<div style="text-align: center;"><strong>Please click on the button below to view more details.</strong></div>\r\n<div style=\"text-align: center;\">&nbsp;</div>\r\n<div style=\"text-align: center;\">&nbsp;</div>\r\n<div style=\"text-align: center;\">##REDIRECTION_URL## .<br /><br /></div>\r\n<div>&nbsp;</div>\r\n<div>&nbsp;</div>\r\n<div>&nbsp;</div>\r\n<div>Thanks and Regards,<br />&nbsp;##APP_NAME##</div>', '##USER_FNAME##~##EMAIL_DESCRIPTION##~##REDIRECTION_URL##~##APP_NAME##', NULL, '2020-06-19 22:49:56', '2020-06-19 21:31:00')
+
+
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES ('65', 'Admin Payment Reminder', 'Payment Reminder', 'Admin-Kadoe', 'admin@vr.com', '<p>Dear Sir/Madam,</p>\r\n<p>This is a friendly reminder that the Commission Payment of order no ##order_no## dated on ##order_date## has not been paid. We here with enclose the Commission Payment invoice for your reference. We appreciate your attention to this matter.</p>\r\n<p><br />Kindly ignore this letter if the payments is already made.</p>\r\n<p>Thanks and Regards</p>\r\n<p>##project_name##</p>', '##order_no##~##order_date##~##project_name##', NULL, '2020-06-19 15:46:56', '2020-06-19 16:09:23');
+
+
+date 20/6/2020 (developer- priyanka)
+
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'Net30 order payment-Received', 'ADMIN', 'Admin-Kadoe', 'admin@vr.com', '<p>Hello ##User_Role##,</p>\r\n<p>##HTML##</p>\r\n\r\n<p>Thanks and regards&nbsp;</p>\r\n<p>Kadoe</p>        \r\n', '##User_Role##~##HTML##', NULL, NULL, NULL); 
+
+
+Date : 23/06/2020 (Jaydip)
+
+ALTER TABLE `refund` ADD `paid_by` INT NOT NULL AFTER `order_no`, ADD `received_by` INT NOT NULL AFTER `paid_by`;
+
+
+ALTER TABLE `retailer_transaction` ADD `admin_commission` DECIMAL(16,6) NOT NULL AFTER `is_direct_payment`;
+
+
+date 24: 25/6/2020  (priyanka)
+
+UPDATE `email_template` SET `template_html` = '<p>Hello Admin,</p>\r\n<p>##HTML##</p>\r\n\r\n<p>Thanks and regards&nbsp;</p>\r\n<p>Kadoe</p>' WHERE `email_template`.`id` = 47;
+
+Date : 26/06/2020 (Jaydip)
+
+ALTER TABLE `representative_leads` ADD `admin_commission` DECIMAL(16,6) NOT NULL AFTER `is_direct_payment`;
+
+
+Date : 29/06/2020 (Jaydip)
+
+ALTER TABLE `retailer_transaction` ADD `admin_commission_status` TINYINT(1) NULL DEFAULT NULL COMMENT '1 => paid , 0 => pending' AFTER `maker_commission_status`;
+
+
+ALTER TABLE `representative_leads` ADD `admin_commission_status` TINYINT(1) NULL DEFAULT NULL COMMENT '1 => paid , 0 => pending' AFTER `maker_commission_status`;
+
+ALTER TABLE `representative_leads` ADD `rep_sales_commission` FLOAT(11) NULL DEFAULT NULL AFTER `admin_commission`;
+
+
+
+Date : 29/06/2020 (Akshay)
+
+ALTER TABLE `customer_transaction` ADD `admin_commission_status` TINYINT(1) NULL DEFAULT NULL COMMENT '1 => paid , 0 => pending' AFTER `maker_commission_status`;
+
+
+ALTER TABLE `customer_transaction` ADD `admin_commission` DECIMAL(16,6) NOT NULL AFTER `is_direct_payment`;
+
+
+date 30/6/2020 (priyanka)
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'Purchase order payment mail to all user', 'Order Payment', 'Retailer', 'admin@vr.com', '<p>Hello ##USER_ROLE##,</p>\r\n<p>##HTML##</p>\r\n\r\n<p>Thanks and regards&nbsp;</p>\r\n<p>Kadoe</p> ', '##USER_ROLE##~##HTML##', NULL, NULL, NULL);
+
+
+
+
+
+
+date 9/7/2020 (priyanka)
+
+ALTER TABLE `addresses` ADD `bill_street_address` TEXT NULL DEFAULT NULL AFTER `is_as_below`;
+ALTER TABLE `addresses` ADD `bill_suit_apt` TEXT NULL DEFAULT NULL AFTER `bill_street_address`;
+ALTER TABLE `addresses` ADD `ship_street_address` TEXT NULL DEFAULT NULL AFTER `bill_suit_apt`;
+ALTER TABLE `addresses` ADD `ship_suit_apt` TEXT NULL DEFAULT NULL AFTER `ship_street_address`;
+
+
+ALTER TABLE `addresses` CHANGE `bill_complete_address` `bill_complete_address` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+
+ALTER TABLE `addresses` CHANGE `ship_complete_address` `ship_complete_address` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+
+
+
+date 16/7/2020
+
+1)representative_leads table :-
+
+update representative_leads set total_shipping_charges = total_product_shipping_charges-total_shipping_discount;
+
+
+2)representative_product_leads table:-
+
+update representative_product_leads set shipping_charges = product_shipping_charge - shipping_charges_discount;
+
+
+ALTER TABLE `addresses` CHANGE `ship_mobile_no` `ship_mobile_no` VARCHAR(225) NULL DEFAULT NULL;
+
+
+
+date 20/7/2020 (priyanka)
+
+ALTER TABLE `representative_leads` ADD `retailer_reject_reason` TEXT NULL DEFAULT NULL AFTER `order_rejected_reason`;
+
+ALTER TABLE `retailer` ADD `bill_contact_no` VARCHAR(255) NULL DEFAULT NULL AFTER `billing_suit_apt`;
+
+ALTER TABLE `retailer` ADD `ship_contact_no` VARCHAR(255) NULL DEFAULT NULL AFTER `bill_contact_no`;
+
+
+
+
+
+date 21/7/2020
+
+update query on address table:-
+
+update addresses set bill_street_address="640 Cross Creek Dr,Ellensburg,WA,98926",bill_suit_apt="Suit/apt 123",ship_street_address="640 Cross Creek Dr,Ellensburg,WA,98926",ship_suit_apt="Suit/apt 123"WHERE `bill_street_address` IS NULL AND `bill_suit_apt` IS NULL AND `ship_street_address` IS NULL AND `ship_suit_apt` IS NULL ORDER BY `id` DESC;
+
+Date 22/07/2020 (Developer : Jaydip)
+
+ALTER TABLE `makers` ADD `admin_commission` FLOAT(10) NOT NULL DEFAULT '0' AFTER `is_direct_payment`;
+
+
+
+date 27/7/2020
+
+ALTER TABLE `representative_leads` ADD `order_cancel_rejected_status` TINYINT(1) NOT NULL COMMENT '0=>pending,1=>cancel and reject' AFTER `order_cancel_status`;
+
+ALTER TABLE `representative_leads` CHANGE `order_cancel_rejected_status` `order_cancel_rejected_status` TINYINT(1) NULL DEFAULT NULL COMMENT '0=>pending,1=>cancel and reject';
+
+
+31/7/2020
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'Commission paid by admin', 'ADMIN', 'Admin-Kadoe', 'admin@kadoe.com', '<p>Hello ##User_Role##,</p>\r\n<p>##HTML##</p>\r\n\r\n<p>Thanks and regards&nbsp;</p>\r\n<p>Kadoe</p> \r\n', '##User_Role##~##HTML##', NULL, NULL, NULL);
+
+UPDATE `email_template` SET `template_subject` = 'Commission paid by admin' WHERE `email_template`.`id` = 67;
+
+
+
+
+10/8/2020  
+
+UPDATE `email_template` SET `template_html` = '<p>Hello sir/Mam,</p>\r\n<p>Payment $##commission_amount## is received successfully of order No: (##order_no##)</p>\r\n<p>order no: ##order_no##</p>\r\n<p>Thanks and regards&nbsp;</p>\r\n<p>Kadoe</p>' WHERE `email_template`.`id` = 61;
+
+
+ALTER TABLE `customer` ADD `bill_contact_no` VARCHAR(255) NULL DEFAULT NULL AFTER `billing_suit_apt`;
+
+ALTER TABLE `customer` ADD `ship_contact_no` VARCHAR(255) NULL DEFAULT NULL AFTER `bill_contact_no`;
+
+
+
+
+/* ---- Created new email template for Bulk invoice  [18/08/2020]  (Yogesh)---- */
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'Admin Payment Reminder', 'Payment Reminder', 'Admin-Kadoe', 'admin@vr.com', '<p>Dear Sir/Madam,</p>\r\n<p>This is a friendly reminder that the Commission Payment of below orders has not been paid. We here with enclose the Commission Payment invoice for your reference. We appreciate your attention to this matter.</p>\r\n##htmltable##\r\n<p><br />Kindly ignore this letter if the payments is already made.</p>\r\n<p>Thanks and Regards</p>\r\n<p>##project_name##</p>', '##htmltable##~##project_name##', NULL, '2020-08-18 17:16:56', '2020-08-19 17:39:23');
+
+
+/* ---- Created new table for Bulk payment from admin  [25/08/2020]  (Yogesh)---- */
+
+CREATE TABLE `stripe_bulk_transactions` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `bulk_transaction_key` varchar(150) NOT NULL,
+ `paid_by` int(11) NOT NULL,
+ `received_by` int(11) NOT NULL,
+ `bulk_transfer_id` varchar(400) NOT NULL,
+ `bulk_transaction_id` varchar(400) NOT NULL,
+ `bulk_destination_payment` varchar(400) NOT NULL,
+ `total_amount` decimal(16,6) NOT NULL,
+ `payment_status` enum('1','2','3') NOT NULL COMMENT '	1 =Pending, 2 = Success , 3 = Failed',
+ `payment_date` datetime NOT NULL,
+ `updated_at` datetime NOT NULL,
+ `created_at` datetime NOT NULL,
+ PRIMARY KEY (`id`),
+ KEY `payment_status` (`payment_status`),
+ KEY `paid_by` (`paid_by`),
+ KEY `received_by` (`received_by`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8
+
+
+
+/* ---- Added new column to store Bulk payment id in 'stripe_transactions'  [25/08/2020]  (Yogesh)---- */
+
+ALTER TABLE `stripe_transactions` ADD `bulk_pay_id` INT NOT NULL DEFAULT '0' COMMENT 'primary key for stripe_bulk_transactions table' AFTER `user_role`, ADD INDEX (`bulk_pay_id`);
+
+/* ---- Added new table to save details of updated product fields in 'product_updated_by_vendor'  [08/09/2020]  (Yogesh)---- */
+CREATE TABLE `product_updated_by_vendor` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `product_id` int(11) NOT NULL,
+ `vendor_id` int(11) NOT NULL,
+ `update_columns` text NOT NULL,
+ `update_productDetails_columns` text NOT NULL COMMENT 'save columns for Style & Dimensions grid',
+ `update_subcategories_columns` text NOT NULL COMMENT 'Save subcategories ID in json array''',
+ `updated_at` datetime DEFAULT NULL,
+ `created_at` datetime NOT NULL,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+
+/* -------- Added sequence no in makers table 25 sep 2020 ------------------*/
+ALTER TABLE `makers` ADD `fld_sequence_no` INT(11) NOT NULL AFTER `description`;
+
+ALTER TABLE `products_details` ADD `shipping_weight` VARCHAR(20) NOT NULL AFTER `height`, ADD `shipping_length` VARCHAR(20) NOT NULL AFTER `shipping_weight`, ADD `shipping_width` VARCHAR(20) NOT NULL AFTER `shipping_length`, ADD `shipping_height` VARCHAR(20) NOT NULL AFTER `shipping_width`;
+
+
+
+
+time being we have add one case qty colm in product table (not on qa and live)
+
+ALTER TABLE `products` ADD `case_quantity` VARCHAR(255) NULL DEFAULT NULL AFTER `product_status`;
+
+
+// Added priomary category name in makers by Harshada on date 14 Oct 2020
+ALTER TABLE `makers` ADD `primary_category_name` VARCHAR(100) NOT NULL AFTER `primary_category_id`;
+
+INSERT INTO `countries` (`id`, `sortname`, `name`, `phonecode`, `is_active`, `created_at`, `updated_at`, `deleted_at`) VALUES (3, 'IN', 'India', NULL, '1', '2020-10-14 00:00:00', '2020-10-14 00:00:00', '2020-10-14 00:00:00')
+
+
+INSERT INTO `countries` (`id`, `sortname`, `name`, `phonecode`, `is_active`, `created_at`, `updated_at`, `deleted_at`) VALUES (4, 'CN', 'China', NULL, '1', '2020-10-14 00:00:00', '2020-10-14 00:00:00', '2020-10-14 00:00:00')
+
+// Added by pranit on 16 oct 20
+- ALTER TABLE `countries_all` ADD `zipcode_length` VARCHAR(20) NULL AFTER `phonecode`;
+- UPDATE `countries_all` SET `zipcode_length`= 0 WHERE 1
+
+
+
+CREATE TABLE `countries_all` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `sortname` varchar(3) DEFAULT NULL,
+ `name` varchar(150) NOT NULL,
+ `phonecode` int(11) DEFAULT NULL,
+ `zipcode_length` varchar(20) DEFAULT NULL,
+ `is_active` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0:Active,1:Block',
+ `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+ `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+ `deleted_at` timestamp NOT NULL DEFAULT current_timestamp(),
+ PRIMARY KEY (`id`),
+ KEY `is_active` (`is_active`)
+) ENGINE=InnoDB AUTO_INCREMENT=258 DEFAULT CHARSET=utf8
+
+// Added by pranit on 20 oct
+
+	- New table - "CREATE TABLE `get_quote_details` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `product_id` int(11) NOT NULL,
+ `quantity` int(11) NOT NULL,
+ `name` varchar(255) NOT NULL,
+ `email` varchar(255) NOT NULL,
+ `contact_number` varchar(30) NOT NULL,
+ `additional_note` text DEFAULT NULL,
+ `status` tinyint(11) NOT NULL COMMENT '''0-Pending'', ''1-Approved'',''2-Rejected'',''3 -Cancelled''',
+ `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+ `updated_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4"
+	- ALTER TABLE `makers` ADD `is_get_a_quote` TINYINT(11) NOT NULL DEFAULT '0' COMMENT '\'0-not approved\',\'1-approved qoute\'' AFTER `fld_sequence_no`;
+
+
+	
+	- INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'Get a Quote', 'Get a Quote', 'Admin-Kadoe', 'pranit.shinde@rwaltz.com', '<table width="500px" bgcolor="#fff" border="0" style="padding:20px;" cellspacing="0" cellpadding="0">
+<tr>
+	<td colspan="2" style="height: 15px;padding-top:10px;">Hello <strong>##VENDOR_NAME##</strong>,</td>
+</tr>
+<tr>
+	<td colspan="2" style="height: 15px;padding-top:10px;">Greetings!!</td>
+</tr>
+<tr>
+	<td colspan="2" style="height: 15px;padding-top:10px;">below user send an quatation to you,</td>
+</tr>
+<tr>
+	<td colspan="2" style=" height: 30px;">&nbsp;</td>
+</tr>
+<tr>
+	<td style="font-size:15px; font-weight: bold;">Brand Name :</td>
+	<td style="font-size:15px;">##PRODUCT_BRAND_NAME##</td>
+</tr>
+<tr>
+	<td style="font-size:15px; font-weight: bold;">Product Name :</td>
+	<td style="font-size:15px;">##PRODUCT_NAME##</td>
+</tr>
+<tr>
+	<td style="font-size:15px; font-weight: bold;">Retail Price</td>
+	<td style="font-size:15px;">##PRODUCT_RETAIL_PRICE##</td>
+</tr>
+<tr>
+	<td colspan="2" style="height: 30px; border-bottom:1px solid #ccc;">&nbsp;</td>
+</tr>
+<tr>
+	<td colspan="2" style="height: 20px; ">&nbsp;</td>
+</tr>
+<tr>
+	<td style="font-size:15px; font-weight: bold;">Name :</td>
+	<td style="font-size:15px;">##QUOTE_USER_NAME##</td>
+</tr>
+<tr>
+	<td style="font-size:15px; font-weight: bold;">Contact Number :</td>
+	<td style="font-size:15px;">##QUOTE_USER_CONTACT_NO##</td>
+</tr>
+<tr>
+	<td style="font-size:15px; font-weight: bold;">Email :</td>
+	<td style="font-size:15px;">##QUOTE_USER_EMAIL##</td>
+</tr>
+<tr>
+	<td style="font-size:15px; font-weight: bold;">Quote Quantity :</td>
+	<td style="font-size:15px;">##QUOTE_USER_QUANTITY##</td>
+</tr>
+<tr>
+	<td style="font-size:15px; font-weight: bold;">Additional Note :</td>
+	<td style="font-size:15px;">##QUOTE_USER_ADDITIONAL_NOTES##</td>
+</tr>
+<tr>
+	<td colspan="2" style="height: 40px;">&nbsp;</td>
+</tr>
+<tr>
+	<td colspan="2" style="">Thanks</td>
+</tr>
+
+
+</table>', 'NA', NULL, NULL, NULL);
+----------------------------------------------------------------------------------------
+Added payment status column in order tables by Harshada on date 21 Oct 2020
+----------------------------------------------------------------------------------------
+ALTER TABLE `customer_transaction` ADD `is_payment_status` TINYINT(4) NOT NULL COMMENT '0 - pending,1 - paid' AFTER `admin_commission_status`;
+
+ALTER TABLE `retailer_transaction` ADD `is_payment_status` TINYINT(4) NOT NULL COMMENT '0 - pending,1 - paid' AFTER `admin_commission_status`;
+
+ALTER TABLE `representative_leads` ADD `is_payment_status` TINYINT(4) NOT NULL COMMENT '0 - pending,1 - paid' AFTER `order_cancel_rejected_status
+
+
+
+*****************all queries has uploaded om kadoe production ,rejoiz ,qa server*********************
+// Get a quote email template updated on 23 Oct 20 by Pranit
+UPDATE `email_template` SET `template_html` = '<table width=\"500px\" bgcolor=\"#fff\" border=\"0\" style=\"padding:20px;\" cellspacing=\"0\" cellpadding=\"0\">\r\n<tr>\r\n	<td colspan=\"2\" style=\"height: 15px;padding-top:10px;\">Hello <strong>##VENDOR_NAME##</strong>,</td>\r\n</tr>\r\n<tr>\r\n	<td colspan=\"2\" style=\"height: 15px;padding-top:10px;\">Greetings!!</td>\r\n</tr>\r\n<tr>\r\n	<td colspan=\"2\" style=\"height: 15px;padding-top:10px;\">below user send an quatation to you,</td>\r\n</tr>\r\n<tr>\r\n	<td colspan=\"2\" style=\" height: 30px;\">&nbsp;</td>\r\n</tr>\r\n<tr>\r\n	<td style=\"font-size:15px; font-weight: bold;\">Brand Name :</td>\r\n	<td style=\"font-size:15px;\">##PRODUCT_BRAND_NAME##</td>\r\n</tr>\r\n<tr>\r\n	<td style=\"font-size:15px; font-weight: bold;\">Product Name :</td>\r\n	<td style=\"font-size:15px;\">##PRODUCT_NAME##</td>\r\n</tr>\r\n<tr>\r\n	<td style=\"font-size:15px; font-weight: bold;\">Price</td>\r\n	<td style=\"font-size:15px;\">##PRODUCT_RETAIL_PRICE##</td>\r\n</tr>\r\n<tr>\r\n	<td colspan=\"2\" style=\"height: 30px; border-bottom:1px solid #ccc;\">&nbsp;</td>\r\n</tr>\r\n<tr>\r\n	<td colspan=\"2\" style=\"height: 20px; \">&nbsp;</td>\r\n</tr>\r\n<tr>\r\n	<td style=\"font-size:15px; font-weight: bold;\">Name :</td>\r\n	<td style=\"font-size:15px;\">##QUOTE_USER_NAME##</td>\r\n</tr>\r\n<tr>\r\n	<td style=\"font-size:15px; font-weight: bold;\">Contact Number :</td>\r\n	<td style=\"font-size:15px;\">##QUOTE_USER_CONTACT_NO##</td>\r\n</tr>\r\n<tr>\r\n	<td style=\"font-size:15px; font-weight: bold;\">Email :</td>\r\n	<td style=\"font-size:15px;\">##QUOTE_USER_EMAIL##</td>\r\n</tr>\r\n<tr>\r\n	<td style=\"font-size:15px; font-weight: bold;\">Quote Quantity :</td>\r\n	<td style=\"font-size:15px;\">##QUOTE_USER_QUANTITY##</td>\r\n</tr>\r\n<tr>\r\n	<td style=\"font-size:15px; font-weight: bold;\">Additional Note :</td>\r\n	<td style=\"font-size:15px;\">##QUOTE_USER_ADDITIONAL_NOTES##</td>\r\n</tr>\r\n<tr>\r\n	<td colspan=\"2\" style=\"height: 40px;\">&nbsp;</td>\r\n</tr>\r\n<tr>\r\n	<td colspan=\"2\" style=\"\">Thanks</td>\r\n</tr>\r\n\r\n\r\n</table>' WHERE `email_template`.`id` = 70;
+
+
+
+// End Get a quote email template updated on 23 Oct 20 by Pranit
+
+
+
+
+
+
+date 26/10/2020
+
+ALTER TABLE `products` CHANGE `is_active` `is_active` TINYINT(4) NULL DEFAULT '2';
+
+
+date 27/10/2020
+
+ALTER TABLE `products_details` ADD `product_min_qty` INT NULL DEFAULT NULL AFTER `sku_product_description` min_product_qty;
+
+
+// Added by pranit - 27 Oct 20
+ALTER TABLE `makers` ADD `is_add_to_bag` TINYINT NOT NULL DEFAULT '0' COMMENT '\'0-Hide button, 1- show button\'' AFTER `is_get_a_quote`;
+
+
+// Added by pranit - 28 oct 20
+
+UPDATE `email_template` SET `template_html` = '<table width=\"500px\" bgcolor=\"#fff\" border=\"0\" style=\"padding:20px;\" cellspacing=\"0\" cellpadding=\"0\">\r\n<tr>\r\n	<td colspan=\"2\" style=\"height: 15px;padding-top:10px;\">Hello <strong>##ADMIN_NAME##</strong>,</td>\r\n</tr>\r\n<tr>\r\n	<td colspan=\"2\" style=\"height: 15px;padding-top:10px;\">Greetings!!</td>\r\n</tr>\r\n<tr>\r\n	<td colspan=\"2\" style=\"height: 15px;padding-top:10px;\">Below user send an quatation to vendor - ##VENDOR_NAME##, email - ##VENDOR_EMAIL##,</td>\r\n</tr>\r\n<tr>\r\n	<td colspan=\"2\" style=\" height: 30px;\">&nbsp;</td>\r\n</tr>\r\n<tr>\r\n	<td style=\"font-size:15px; font-weight: bold;\">Brand Name :</td>\r\n	<td style=\"font-size:15px;\">##PRODUCT_BRAND_NAME##</td>\r\n</tr>\r\n<tr>\r\n	<td style=\"font-size:15px; font-weight: bold;\">Product Name :</td>\r\n	<td style=\"font-size:15px;\">##PRODUCT_NAME##</td>\r\n</tr>\r\n<tr>\r\n	<td colspan=\"2\" style=\"height: 30px; border-bottom:1px solid #ccc;\">&nbsp;</td>\r\n</tr>\r\n<tr>\r\n	<td colspan=\"2\" style=\"height: 20px; \">&nbsp;</td>\r\n</tr>\r\n<tr>\r\n	<td style=\"font-size:15px; font-weight: bold;\">Name :</td>\r\n	<td style=\"font-size:15px;\">##QUOTE_USER_NAME##</td>\r\n</tr>\r\n<tr>\r\n	<td style=\"font-size:15px; font-weight: bold;\">Contact Number :</td>\r\n	<td style=\"font-size:15px;\">##QUOTE_USER_CONTACT_NO##</td>\r\n</tr>\r\n<tr>\r\n	<td style=\"font-size:15px; font-weight: bold;\">Email :</td>\r\n	<td style=\"font-size:15px;\">##QUOTE_USER_EMAIL##</td>\r\n</tr>\r\n<tr>\r\n	<td style=\"font-size:15px; font-weight: bold;\">Quote Quantity :</td>\r\n	<td style=\"font-size:15px;\">##QUOTE_USER_QUANTITY##</td>\r\n</tr>\r\n<tr>\r\n	<td style=\"font-size:15px; font-weight: bold;\">Expected Delivery in Days :</td>\r\n	<td style=\"font-size:15px;\">##EXPECTED_DAYS##</td>\r\n</tr>\r\n<tr>\r\n	<td style=\"font-size:15px; font-weight: bold;\">Expected Delivery Date :</td>\r\n	<td style=\"font-size:15px;\">##EXPECTED_DELIVERY_DATE##</td>\r\n</tr>\r\n<tr>\r\n	<td style=\"font-size:15px; font-weight: bold;\">Additional Note :</td>\r\n	<td style=\"font-size:15px;\">##QUOTE_USER_ADDITIONAL_NOTES##</td>\r\n</tr>\r\n<tr>\r\n	<td colspan=\"2\" style=\"height: 40px;\">&nbsp;</td>\r\n</tr>\r\n<tr>\r\n	<td colspan=\"2\" style=\"\">Thanks</td>\r\n</tr>\r\n\r\n\r\n</table>' WHERE `email_template`.`id` = 70;
+
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'Vendor get a Quote', 'Get a Quote', 'Admin-Kadoe', 'pranit.shinde@rwaltz.com', '<table width=\"500px\" bgcolor=\"#fff\" border=\"0\" style=\"padding:20px;\" cellspacing=\"0\" cellpadding=\"0\">\r\n<tr>\r\n	<td colspan=\"2\" style=\"height: 15px;padding-top:10px;\">Hello <strong>##VENDOR_NAME##</strong>,</td>\r\n</tr>\r\n<tr>\r\n	<td colspan=\"2\" style=\"height: 15px;padding-top:10px;\">Greetings!!</td>\r\n</tr>\r\n<tr>\r\n	<td colspan=\"2\" style=\"height: 15px;padding-top:10px;\">A user send an quatation to you please contact to ##SITE_NAME## admin to get all details,</td>\r\n</tr>\r\n<tr>\r\n	<td colspan=\"2\" style=\" height: 30px;\">&nbsp;</td>\r\n</tr>\r\n<tr>\r\n	<td style=\"font-size:15px; font-weight: bold;\">Admin Name :</td>\r\n	<td style=\"font-size:15px;\">##ADMIN_NAME##</td>\r\n</tr>\r\n<tr>\r\n	<td style=\"font-size:15px; font-weight: bold;\">Email :</td>\r\n	<td style=\"font-size:15px;\">##ADMIN_EMAIL##</td>\r\n</tr>\r\n<tr>\r\n	<td colspan=\"2\" style=\"height: 40px;\">&nbsp;</td>\r\n</tr>\r\n<tr>\r\n	<td colspan=\"2\" style=\"\">Thanks</td>\r\n</tr>\r\n\r\n\r\n</table>', 'NA', NULL, NULL, NULL);
+
+
+------------ Added by pranit on 29 oct 20
+ALTER TABLE `get_quote_details` ADD `no_of_days_to_expected_delivery` INT(11) NULL DEFAULT NULL AFTER `additional_note`, ADD `expected_delivery_date` TIMESTAMP NULL DEFAULT NULL AFTER `no_of_days_to_expected_delivery`;
+
+
+
+ALTER TABLE `get_quote_details` ADD `vendor_id` INT(11) NOT NULL AFTER `product_id`;
+
+
+// Added by pranit on 30 oct 20
+UPDATE `email_template` SET `template_html` = '<table width=\"500px\" bgcolor=\"#fff\" border=\"0\" style=\"padding:20px;\" cellspacing=\"0\" cellpadding=\"0\">\r\n<tr>\r\n	<td colspan=\"2\" style=\"height: 15px;padding-top:10px;\">##EMAIL_BODY##</td>\r\n</tr>\r\n<tr>\r\n	<td colspan=\"2\" style=\" height: 30px;\">&nbsp;</td>\r\n</tr>\r\n\r\n</table>' WHERE `email_template`.`id` = 71;
+
+// added by pranit on 02 nov 20
+UPDATE `email_template` SET `template_html` = '<table style=\"padding: 20px; height: 651px; width: 653px;\" border=\"0\" width=\"850\" cellspacing=\"0\" cellpadding=\"0\" bgcolor=\"#fff\">\r\n<tbody>\r\n<tr style=\"height: 15px;\">\r\n<td style=\"height: 15px; padding-top: 10px; width: 609px;\" colspan=\"2\">Hello <strong>##VENDOR_NAME##</strong>,</td>\r\n</tr>\r\n<tr style=\"height: 15px;\">\r\n<td style=\"height: 15px; padding-top: 10px; width: 609px;\" colspan=\"2\">Greetings!!</td>\r\n</tr>\r\n<tr style=\"height: 15px;\">\r\n<td style=\"height: 15px; padding-top: 10px; width: 609px;\" colspan=\"2\">There is a Quote Request generate for ##COMPANY_NAME## on ##SITE_NAME## for the following product.</td>\r\n</tr>\r\n<tr style=\"height: 30px;\">\r\n<td style=\"height: 30px; width: 609px;\" colspan=\"2\">\r\n<h3><strong>Product Details -</strong></h3>\r\n</td>\r\n</tr>\r\n<tr style=\"height: 19px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 19px; width: 186px;\">\r\n<h4>Product Name :</h4>\r\n</td>\r\n<td style=\"font-size: 15px; height: 19px; width: 421px;\">##PRODUCT_NAME##&nbsp;</td>\r\n</tr>\r\n<tr style=\"height: 38px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 38px; width: 186px;\">\r\n<h4>Brand Name :</h4>\r\n</td>\r\n<td style=\"font-size: 15px; height: 38px; width: 421px;\">##BRAND_NAME##</td>\r\n</tr>\r\n<tr style=\"height: 38px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 38px; width: 186px;\">\r\n<h4>Quote Quantity :</h4>\r\n</td>\r\n<td style=\"font-size: 15px; height: 38px; width: 421px;\">##QUOTE_QUANTITY##</td>\r\n</tr>\r\n<tr style=\"height: 38px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 38px; width: 186px;\">\r\n<h4>Expected Delivery in Days :</h4>\r\n</td>\r\n<td style=\"font-size: 15px; height: 38px; width: 421px;\">##EXPECTED_DELIVERY_DAYS## Days</td>\r\n</tr>\r\n<tr style=\"height: 38px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 38px; width: 186px;\">\r\n<h4>Additional Notes :</h4>\r\n</td>\r\n<td style=\"font-size: 15px; height: 38px; width: 421px;\">##EMAIL_BODY##</td>\r\n</tr>\r\n<tr style=\"height: 30px;\">\r\n<td style=\"height: 30px; border-bottom: 1px solid #cccccc; width: 609px;\" colspan=\"2\">&nbsp;</td>\r\n</tr>\r\n<tr style=\"height: 15px;\">\r\n<td style=\"height: 15px; padding-top: 10px; width: 609px;\" colspan=\"2\">To enquire more about the above quote, please contact our ##SITE_NAME## team.</td>\r\n</tr>\r\n<tr style=\"height: 40px;\">\r\n<td style=\"height: 40px; width: 609px;\" colspan=\"2\">&nbsp;</td>\r\n</tr>\r\n<tr style=\"height: 18px;\">\r\n<td style=\"height: 18px; width: 609px;\" colspan=\"2\">Thanks</td>\r\n</tr>\r\n</tbody>\r\n</table>' WHERE `email_template`.`id` = 71;
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Akshay - 3 Nov 2020
+
+ALTER TABLE `makers` ADD `listing_sequence_no` INT NOT NULL DEFAULT '0' AFTER `company_name`;
+ALTER TABLE `banner_images` ADD `banner_image_small` VARCHAR(256) NULL DEFAULT NULL AFTER `banner_image`; 
+(Uploaded on QA,Kadoe Production and Rejoiz)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+date 9/11/2020 (priyanka)
+
+ALTER TABLE `retailer_transaction` CHANGE `maker_commission_status` `maker_commission_status` TINYINT(4) NULL DEFAULT '0' COMMENT '0=>pending,1=>paid';
+
+
+date 10/11/2020 (priyanka)
+
+ALTER TABLE `site_settings` ADD `login_site_logo` TEXT NULL DEFAULT NULL AFTER `salesmanager_commission`;
+
+---------------------------------------------------------------------------------------------------------------------
+date 17-11-2020 (Harshada)
+CREATE TABLE `extracted_products_images` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `sku_no` varchar(200) NOT NULL,
+  `product_image` varchar(200) NOT NULL,
+  `product_source_image` varchar(300) NOT NULL,
+  `product_dest_image_path` varchar(500) NOT NULL,
+  `maker_id` int(11) NOT NULL,
+  `is_process` tinyint(4) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+---------------------------------updated in rejoiz,staging,QA
+
+
+******************************************************************************
+
+UPDATE `email_template` SET `template_variables` = '##FIRST_NAME##~##EMAIL##~##REMINDER_URL##~##SITE_URL##~##PROJECT_NAME##' WHERE `email_template`.`id` = 7;
+
+UPDATE `email_template` SET `template_html` = '<p>Hello <strong>##FIRST_NAME##</strong> ,</p>\r\n<p>You\'ve just requested to reset your password</p>\r\n<p>Please click following reset password button to reset password, it will directly take you to reset password page.</p>\r\n<p>&nbsp;</p>\r\n<p style=\"text-align: center;\">&nbsp;</p>\r\n<p style=\"text-align: center;\">##REMINDER_URL##</p>\r\n<p style=\"text-align: left;\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>\r\n<p style=\"text-align: left;\">&nbsp;</p>\r\n<p style=\"text-align: left;\">&nbsp;</p>\r\n<p style=\"text-align: left;\"><br /><br />Thanks and Regards, &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; <br />##PROJECT_NAME## Team&nbsp;&nbsp;</p>\r\n<p style=\"text-align: left;\">&nbsp;</p>\r\n<p style=\"text-align: left;\">&nbsp;</p>' WHERE `email_template`.`id` = 7;
+
+
+UPDATE `email_template` SET `template_html` = '<table style=\"padding: 20px; height: 651px; width: 653px;\" border=\"0\" width=\"850\" cellspacing=\"0\" cellpadding=\"0\" bgcolor=\"#fff\">\r\n<tbody>\r\n<tr style=\"height: 15px;\">\r\n<td style=\"height: 15px; padding-top: 10px; width: 609px;\" colspan=\"2\">Hello <strong>##VENDOR_NAME##</strong>,</td>\r\n</tr>\r\n<tr style=\"height: 15px;\">\r\n<td style=\"height: 15px; padding-top: 10px; width: 609px;\" colspan=\"2\">Greetings!!</td>\r\n</tr>\r\n<tr style=\"height: 15px;\">\r\n<td style=\"height: 15px; padding-top: 10px; width: 609px;\" colspan=\"2\">There is a Quote Request generate for ##COMPANY_NAME## on ##SITE_NAME## for the following product.</td>\r\n</tr>\r\n<tr style=\"height: 30px;\">\r\n<td style=\"height: 30px; width: 609px;\" colspan=\"2\">\r\n<h3><strong>Product Details -</strong></h3>\r\n</td>\r\n</tr>\r\n<tr style=\"height: 19px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 19px; width: 186px;\">\r\n<h4>Product Name :</h4>\r\n</td>\r\n<td style=\"font-size: 15px; height: 19px; width: 421px;\">##PRODUCT_NAME##&nbsp;</td>\r\n</tr>\r\n<tr style=\"height: 38px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 38px; width: 186px;\">\r\n<h4>Brand Name :</h4>\r\n</td>\r\n<td style=\"font-size: 15px; height: 38px; width: 421px;\">##BRAND_NAME##</td>\r\n</tr>\r\n<tr style=\"height: 38px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 38px; width: 186px;\">\r\n<h4>Quote Quantity :</h4>\r\n</td>\r\n<td style=\"font-size: 15px; height: 38px; width: 421px;\">##QUOTE_QUANTITY##</td>\r\n</tr>\r\n<tr style=\"height: 38px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 38px; width: 186px;\">\r\n<h4>Expected Delivery in Days :</h4>\r\n</td>\r\n<td style=\"font-size: 15px; height: 38px; width: 421px;\">##EXPECTED_DELIVERY_DAYS## Days</td>\r\n</tr>\r\n<tr style=\"height: 38px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 38px; width: 186px;\">\r\n<h4>Additional Notes :</h4>\r\n</td>\r\n<td style=\"font-size: 15px; height: 38px; width: 421px;\">##EMAIL_BODY##</td>\r\n</tr>\r\n<tr style=\"height: 30px;\">\r\n<td style=\"height: 30px; border-bottom: 1px solid #cccccc; width: 609px;\" colspan=\"2\">&nbsp;</td>\r\n</tr>\r\n<tr style=\"height: 15px;\">\r\n<td style=\"height: 15px; padding-top: 10px; width: 609px;\" colspan=\"2\">To enquire more about the above quote, please contact our ##SITE_NAME## team.</td>\r\n</tr>\r\n<tr style=\"height: 40px;\">\r\n<td style=\"height: 40px; width: 609px;\" colspan=\"2\">&nbsp;</td>\r\n</tr>\r\n<tr style=\"height: 18px;\">\r\n<td style=\"height: 18px; width: 609px;\" colspan=\"2\">\r\n<p>Thanks and Regards,</p>\r\n<p>##PROJECT_NAME## Team</p>\r\n</td>\r\n</tr>\r\n</tbody>\r\n</table>' WHERE `email_template`.`id` = 71;
+
+UPDATE `email_template` SET `template_variables` = '##PROJECT_NAME##' WHERE `email_template`.`id` = 70;
+
+UPDATE `email_template` SET `template_html` = '<table style=\"padding: 20px; height: 492px;\" border=\"0\" width=\"821\" cellspacing=\"0\" cellpadding=\"0\" bgcolor=\"#fff\">\r\n<tbody>\r\n<tr style=\"height: 15px;\">\r\n<td style=\"height: 15px; padding-top: 10px; width: 777px;\" colspan=\"2\">Hello <strong>##ADMIN_NAME##</strong>,</td>\r\n</tr>\r\n<tr style=\"height: 15px;\">\r\n<td style=\"height: 15px; padding-top: 10px; width: 777px;\" colspan=\"2\">Greetings!!</td>\r\n</tr>\r\n<tr style=\"height: 15px;\">\r\n<td style=\"height: 15px; padding-top: 10px; width: 777px;\" colspan=\"2\">Below user sent a quotation to ##VENDOR_COMPANY## vendor.</td>\r\n</tr>\r\n<tr style=\"height: 30px;\">\r\n<td style=\"height: 30px; width: 777px;\" colspan=\"2\"><strong>Product Details -</strong></td>\r\n</tr>\r\n<tr style=\"height: 19px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 19px; width: 205px;\">Product Name :</td>\r\n<td style=\"font-size: 15px; height: 19px; width: 570px;\">##PRODUCT_NAME##&nbsp;</td>\r\n</tr>\r\n<tr style=\"height: 38px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 38px; width: 205px;\">Brand Name :</td>\r\n<td style=\"font-size: 15px; height: 38px; width: 570px;\">##PRODUCT_BRAND_NAME##</td>\r\n</tr>\r\n<tr style=\"height: 30px;\">\r\n<td style=\"height: 30px; border-bottom: 1px solid #cccccc; width: 777px;\" colspan=\"2\">&nbsp;</td>\r\n</tr>\r\n<tr style=\"height: 20px;\">\r\n<td style=\"height: 20px; width: 777px;\" colspan=\"2\"><strong>User Details -</strong></td>\r\n</tr>\r\n<tr style=\"height: 19px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 19px; width: 205px;\">Name :</td>\r\n<td style=\"font-size: 15px; height: 19px; width: 570px;\">##QUOTE_USER_NAME##</td>\r\n</tr>\r\n<tr style=\"height: 39px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 39px; width: 205px;\">Contact Number :</td>\r\n<td style=\"font-size: 15px; height: 39px; width: 570px;\">##QUOTE_USER_CONTACT_NO##</td>\r\n</tr>\r\n<tr style=\"height: 19px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 19px; width: 205px;\">Email :</td>\r\n<td style=\"font-size: 15px; height: 19px; width: 570px;\">##QUOTE_USER_EMAIL##</td>\r\n</tr>\r\n<tr style=\"height: 39px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 39px; width: 205px;\">Quote Quantity :</td>\r\n<td style=\"font-size: 15px; height: 39px; width: 570px;\">##QUOTE_USER_QUANTITY##</td>\r\n</tr>\r\n<tr style=\"height: 58px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 58px; width: 205px;\">Expected Delivery in Days :</td>\r\n<td style=\"font-size: 15px; height: 58px; width: 570px;\">##EXPECTED_DAYS##</td>\r\n</tr>\r\n<tr style=\"height: 39px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 39px; width: 205px;\">Expected Delivery Date :</td>\r\n<td style=\"font-size: 15px; height: 39px; width: 570px;\">##EXPECTED_DELIVERY_DATE##</td>\r\n</tr>\r\n<tr style=\"height: 39px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 39px; width: 205px;\">Additional Note :</td>\r\n<td style=\"font-size: 15px; height: 39px; width: 570px;\">##QUOTE_USER_ADDITIONAL_NOTES##</td>\r\n</tr>\r\n<tr style=\"height: 40px;\">\r\n<td style=\"height: 40px; width: 777px;\" colspan=\"2\">&nbsp;</td>\r\n</tr>\r\n<tr style=\"height: 18px;\">\r\n<td style=\"height: 18px; width: 777px;\" colspan=\"2\">\r\n<p>Thanks and Regards,</p>\r\n<p>##PROJECT_NAME## Team</p>\r\n</td>\r\n</tr>\r\n</tbody>\r\n</table>' WHERE `email_template`.`id` = 70;
+
+
+UPDATE `email_template` SET `template_variables` = '##USER_ROLE##~##HTML##~##PROJECT_NAME##' WHERE `email_template`.`id` = 68;
+
+UPDATE `email_template` SET `template_html` = '<p>Hello ##USER_ROLE##,</p>\r\n<p>##HTML##</p>\r\n<p>Thanks and Regards,&nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>' WHERE `email_template`.`id` = 68;
+
+UPDATE `email_template` SET `template_variables` = '##USER_NAME##~##MESSAGE##~##SUBJECT##~##HTML##~##PROJECT_NAME##' WHERE `email_template`.`id` = 40;
+
+UPDATE `email_template` SET `template_html` = '<p>Hello&nbsp; ##USER_NAME##,<br /><br />##MESSAGE##</p>\r\n<div style=\"text-align: center;\">&nbsp;</div>\r\n<div style=\"text-align: center;\">&nbsp;</div>\r\n<div style=\"text-align: center;\">##HTML##</div>\r\n<p><br />Thanks and Regards,<br />##PROJECT_NAME## Team</p>' WHERE `email_template`.`id` = 40;
+
+UPDATE `email_template` SET `template_html` = '<p>Dear Sir/Ma\'am,</p>\r\n<p>You have successfully subscribed to Kadoe,</p>\r\n<p>Subscribed email id: ##email##</p>\r\n<p>Thanks and Regards, &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; <br />##PROJECT_NAME## Team</p>\r\n<p>&nbsp;</p>' WHERE `email_template`.`id` = 35;
+
+UPDATE `email_template` SET `template_variables` = '##email##~##SITE_URL##~##PROJECT_NAME##' WHERE `email_template`.`id` = 35;
+
+UPDATE `email_template` SET `template_variables` = '##USER_NAME##~##HTML##~##APP_NAME##' WHERE `email_template`.`id` = 51;
+
+UPDATE `email_template` SET `template_html` = '<p>Hello ##USER_NAME##</p>\r\n<p>##HTML##</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks and Regards,</p>\r\n<p>##APP_NAME## Team</p>\r\n<p>&nbsp;</p>' WHERE `email_template`.`id` = 51;
+
+UPDATE `email_template` SET `template_variables` = '##USER_NAME##~##ORDER_NO##~##COMPANY##~##TRACKING_URL##~##PROJECT_NAME##' WHERE `email_template`.`id` = 53;
+
+UPDATE `email_template` SET `template_html` = '<p>Hello ##USER_NAME##</p>\r\n<p>##HTML## ##ORDER_NO##</p>\r\n<p>Shipping Company : ##COMPANY##</p>\r\n<p>Tracking Number : ##TRACKING_URL## (Click on the Tracking Number to Track the Shipment)</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks and Regards,</p>\r\n<p>##PROJECT_NAME## Team</p>\r\n<p>&nbsp;</p>' WHERE `email_template`.`id` = 53;
+
+
+UPDATE `email_template` SET `template_html` = '<p>Hello Sir/Ma\'am,</p>\r\n<p>Payment $##commission_amount## has received successfully of order no: (##order_no##)</p>\r\n<p>order no: ##order_no##</p>\r\n<p>Thanks and Regards,&nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>' WHERE `email_template`.`id` = 61;
+
+UPDATE `email_template` SET `template_variables` = '##commission_amount##~##order_no##~##PROJECT_NAME##' WHERE `email_template`.`id` = 61;
+
+UPDATE `email_template` SET `template_html` = '<p>Hello Sir/Ma\'am,</p>\r\n<p>Your Net30 order (##order_no##) is confirmed,amount : $##credit_amount## is credited in your account once retailer generate the NET30 payment.</p>\r\n<p>order no: ##order_no##</p>\r\n<p>Thanks and Regards,&nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>' WHERE `email_template`.`id` = 60;
+
+UPDATE `email_template` SET `template_variables` = '##credit_amount##~##order_no##~##PROJECT_NAME##' WHERE `email_template`.`id` = 60;
+
+UPDATE `email_template` SET `template_html` = '<p>Hello Sir/Ma\'am,</p>\r\n<p>Your order has been confirmed successfully! , <br /><label>$##credit_amount## </label>credited in your account,</p>\r\n<p>order no: ##order_no##</p>\r\n<p>Thanks and Regards,&nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>' WHERE `email_template`.`id` = 54;
+
+UPDATE `email_template` SET `template_variables` = '##credit_amount##~##order_no##~##PROJECT_NAME##' WHERE `email_template`.`id` = 54;
+
+UPDATE `email_template` SET `template_html` = '<p>Hello Sir/Ma\'am,</p>\r\n<p>Net30 order (##order_no##) is confirmed from vendor : ##vendor_name##.</p>\r\n<p>order no: ##order_no##</p>\r\n<p>Thanks and Regards,&nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>' WHERE `email_template`.`id` = 58;
+
+UPDATE `email_template` SET `template_variables` = '##vendor_name##~##order_no##~##PROJECT_NAME##' WHERE `email_template`.`id` = 58;
+
+UPDATE `email_template` SET `template_html` = '<p>Hello Sir/Ma\'am,</p>\r\n<p>Your order (##order_no##) is confirmed,amount : $##credit_amount## is credited to your account once user generate the Net30 payment.</p>\r\n<p>order no: ##order_no##</p>\r\n<p>Thanks and Regards,&nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>' WHERE `email_template`.`id` = 57;
+
+UPDATE `email_template` SET `template_variables` = '##credit_amount##~##order_no##~##PROJECT_NAME##' WHERE `email_template`.`id` = 57;
+
+UPDATE `email_template` SET `template_html` = '<p>Hello Sir/Ma\'am,</p>\r\n<p>Your order (##order_no##) is confirmed,amount : $##deducted_amount## is deducted from your account once user generate the NET30 payment.</p>\r\n<p>order no: ##order_no##</p>\r\n<p>Thanks and Regards,&nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>' WHERE `email_template`.`id` = 55;
+
+UPDATE `email_template` SET `template_variables` = '##deducted_amount##~##order_no##~##PROJECT_NAME## ' WHERE `email_template`.`id` = 55;
+
+UPDATE `email_template` SET `template_variables` = '##ORDER_NO##~##PROJECT_NAME##' WHERE `email_template`.`id` = 52;
+
+UPDATE `email_template` SET `template_html` = '<p>Dear Sir/Ma\'am,</p>\r\n<p>Order ##ORDER_NO## has been cancelled successfully please check attachment for further details</p>\r\n<p>Thanks and Regards, &nbsp; &nbsp; &nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>\r\n<p>&nbsp;</p>' WHERE `email_template`.`id` = 52;
+
+UPDATE `email_template` SET `template_html` = '<p>Dear Sir/Ma\'am,</p>\r\n<p>Your order placed successfully, please check attachment for further details.</p>\r\n<p>Thanks and Regards, &nbsp; &nbsp; &nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>\r\n<p>&nbsp;</p>' WHERE `email_template`.`id` = 50;
+
+
+UPDATE `email_template` SET `template_variables` = '##PROJECT_NAME##' WHERE `email_template`.`id` = 50;
+
+UPDATE `email_template` SET `template_html` = '<p>Dear Sir/Madam,</p>\r\n<p>Your order has generated successfully please check attachment for further details</p>\r\n<p>Thanks and Regards, &nbsp; &nbsp; &nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>\r\n<p>&nbsp;</p>' WHERE `email_template`.`id` = 36;
+
+UPDATE `email_template` SET `template_variables` = '##email##~##SITE_URL~##PROJECT_NAME##' WHERE `email_template`.`id` = 36;
+
+UPDATE `email_template` SET `template_html` = '<p>Hello Admin,</p>\r\n<p>order no: ##order_no## has generated successfully please check attachment for further details</p>\r\n<p>Thanks and Regards, &nbsp; &nbsp; &nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>\r\n<p>&nbsp;</p>' WHERE `email_template`.`id` = 48;
+
+UPDATE `email_template` SET `template_variables` = '##email##~##SITE_URL##~##order_no##~##PROJECT_NAME##' WHERE `email_template`.`id` = 48;
+
+UPDATE `email_template` SET `template_html` = '<p>Dear Sir/Madam,</p>\r\n<p>New order placed by ##REP_NAME##, please check attachment for further details.</p>\r\n<p>Thanks and Regards, &nbsp; &nbsp; &nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>\r\n<p>&nbsp;</p>' WHERE `email_template`.`id` = 49;
+
+UPDATE `email_template` SET `template_variables` = '##REP_NAME##~##PROJECT_NAME##' WHERE `email_template`.`id` = 49;
+
+UPDATE `email_template` SET `template_html` = '<p>Hello Admin,</p>\r\n<p>##HTML##</p>\r\n<p>Thanks and regards,&nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>' WHERE `email_template`.`id` = 47;
+
+UPDATE `email_template` SET `template_variables` = '##deducted_amount##~##order_no##~##user_role##~##PROJECT_NAME##' WHERE `email_template`.`id` = 47;UPDATE `email_template` SET `template_html` = '<p>Dear Sir/Madam,</p>\r\n<p>New order placed by ##REP_NAME##, please check attachment for further details and confirm the order for further process.</p>\r\n<p>Thanks and Regards, &nbsp; &nbsp; &nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>\r\n<p>&nbsp;</p>' WHERE `email_template`.`id` = 46;
+
+UPDATE `email_template` SET `template_variables` = '##REP_NAME##~##PROJECT_NAME##' WHERE `email_template`.`id` = 46;
+
+UPDATE `email_template` SET `template_html` = '<p>Dear Sir/Madam,</p>\r\n<p>Order has been splited successfully please check attachment for further details</p>\r\n<p>Thanks and Regards, &nbsp; &nbsp; &nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>\r\n<p>&nbsp;</p>' WHERE `email_template`.`id` = 45;
+
+UPDATE `email_template` SET `template_variables` = '##email##~##SITE_URL~##PROJECT_NAME##' WHERE `email_template`.`id` = 45;
+
+UPDATE `email_template` SET `template_html` = '<p>Dear Sir/Madam,</p>\r\n<p>Your order has been split successfully please check attachment for further details</p>\r\n<p>Thanks and Regards, &nbsp; &nbsp; &nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>\r\n<p>&nbsp;</p>' WHERE `email_template`.`id` = 44;
+
+UPDATE `email_template` SET `template_variables` = '##email##~##SITE_URL~##PROJECT_NAME##' WHERE `email_template`.`id` = 44;
+
+UPDATE `email_template` SET `template_html` = '<p>Dear Sir/Madam,</p>\r\n<p>New order has been placed, please check attachment for further details</p>\r\n<p>Thanks and Regards, &nbsp; &nbsp; &nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>\r\n<p>&nbsp;</p>' WHERE `email_template`.`id` = 43;
+
+UPDATE `email_template` SET `template_variables` = '##email##~##SITE_URL~##PROJECT_NAME##~##PROJECT_NAME##' WHERE `email_template`.`id` = 43;
+
+UPDATE `email_template` SET `template_html` = '<p>Dear Sir/Madam,</p>\r\n<p>Retailer requesting you to cancel the order ##ORDER_NO##, please check attachment for further details</p>\r\n<p>Thanks and Regards, &nbsp; &nbsp; &nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>\r\n<p>&nbsp;</p>' WHERE `email_template`.`id` = 42;
+
+UPDATE `email_template` SET `template_variables` = '##ORDER_NO##~##PROJECT_NAME##' WHERE `email_template`.`id` = 42;
+
+UPDATE `email_template` SET `template_html` = '<p>Dear Sir/Madam,</p>\r\n<p>Your order has cancelled successfully please check attachment for further details</p>\r\n<p>Thanks and Regards, &nbsp; &nbsp; &nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>\r\n<p>&nbsp;</p>' WHERE `email_template`.`id` = 39;
+
+UPDATE `email_template` SET `template_variables` = '##email##~##SITE_URL##~##PROJECT_NAME##' WHERE `email_template`.`id` = 39;
+
+UPDATE `email_template` SET `template_html` = '<p>Hello sir/Mam,</p>\r\n<p>Your order has been confirmed successfully! , <br /><label>$##deducted_amount## </label>deducted from your account,</p>\r\n<p>order no: ##order_no##</p>\r\n<p>Thanks and regards,&nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>' WHERE `email_template`.`id` = 38;
+
+UPDATE `email_template` SET `template_variables` = '##deducted_amount##~##order_no##~##PROJECT_NAME##' WHERE `email_template`.`id` = 38;
+
+UPDATE `email_template` SET `template_html` = '<p>Hello ##User_Role##,</p>\r\n<p>##HTML##</p>\r\n<p>Thanks and regards,&nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>' WHERE `email_template`.`id` = 66;
+
+UPDATE `email_template` SET `template_variables` = '##User_Role##~##HTML##~##PROJECT_NAME##' WHERE `email_template`.`id` = 66;
+
+update email_template set template_from = REPLACE(template_from, "Admin-RightCore", "Admin-##project_name##") where template_from = 'Admin-RightCore';
+
+update email_template set template_from = REPLACE(template_from, "Admin-Kadoe", "Admin-##project_name##") where template_from = 'Admin-Kadoe';
+
+UPDATE `email_template` SET `template_subject` = 'New Contact Enquiry at ##project_name##' WHERE `email_template`.`id` = 3;
+
+UPDATE `email_template` SET `template_subject` = 'Your Account Details for ##project_name##' WHERE `email_template`.`id` = 8;
+
+UPDATE `email_template` SET `template_subject` = 'Welcome to ##project_name## community' WHERE `email_template`.`id` = 34;
+
+UPDATE `email_template` SET `template_subject` = '##project_name## subscription' WHERE `email_template`.`id` = 35;
+
+UPDATE `email_template` SET `template_subject` = '##project_name## subscription' WHERE `email_template`.`id` = 36;
+
+UPDATE `email_template` SET `template_subject` = '##project_name## subscription' WHERE `email_template`.`id` = 39;
+
+UPDATE `email_template` SET `template_subject` = '##project_name## subscription' WHERE `email_template`.`id` = 43;
+
+UPDATE `email_template` SET `template_subject` = '##project_name## subscription' WHERE `email_template`.`id` = 44;
+
+UPDATE `email_template` SET `template_subject` = '##project_name## subscription' WHERE `email_template`.`id` = 45;
+
+UPDATE `email_template` SET `template_subject` = 'New Contact Enquiry at ##project_name##' WHERE `email_template`.`id` = 3;
+
+UPDATE `email_template` SET `template_subject` = 'Your Account Details for ##project_name##' WHERE `email_template`.`id` = 8;
+
+UPDATE `email_template` SET `template_subject` = 'Welcome to ##project_name## community' WHERE `email_template`.`id` = 34;UPDATE `email_template` SET `template_subject` = '##project_name## subscription' WHERE `email_template`.`id` = 35;
+
+UPDATE `email_template` SET `template_subject` = '##project_name## subscription' WHERE `email_template`.`id` = 36;
+
+UPDATE `email_template` SET `template_subject` = '##project_name## subscription' WHERE `email_template`.`id` = 39;UPDATE `email_template` SET `template_subject` = '##project_name## subscription' WHERE `email_template`.`id` = 43;
+
+UPDATE `email_template` SET `template_subject` = '##project_name## subscription' WHERE `email_template`.`id` = 44;
+
+UPDATE `email_template` SET `template_subject` = '##project_name## subscription' WHERE `email_template`.`id` = 45;
+
+UPDATE `email_template` SET `template_html` = '<p>Dear Sir/Ma\'am,</p>\r\n<p>You have successfully subscribed to ##PROJECT_NAME##,</p>\r\n<p>Subscribed email id: ##email##</p>\r\n<p>Thanks and Regards, &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; <br />##PROJECT_NAME## Team</p>\r\n<p>&nbsp;</p>' WHERE `email_template`.`id` = 35;
+
+UPDATE `email_template` SET `template_html` = '<p>Hello ##USER_ROLE##,</p>\r\n<p>##HTML##</p>\r\n<p>Thanks and Regards,&nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>' WHERE `email_template`.`id` = 67;
+
+UPDATE `email_template` SET `template_variables` = '##USER_ROLE##~##HTML##~##PROJECT_NAME##' WHERE `email_template`.`id` = 67;
+
+UPDATE `email_template` SET `template_name` = '##PROJECT_NAME##' WHERE `email_template`.`id` = 35;
+
+UPDATE `email_template` SET `template_name` = 'Admin-##PROJECT_NAME##' WHERE `email_template`.`id` = 34;
+
+UPDATE `email_template` SET `template_html` = '<table style=\"padding: 20px; height: 651px; width: 653px;\" border=\"0\" width=\"850\" cellspacing=\"0\" cellpadding=\"0\" bgcolor=\"#fff\">\r\n<tbody>\r\n<tr style=\"height: 15px;\">\r\n<td style=\"height: 15px; padding-top: 10px; width: 609px;\" colspan=\"2\">Hello <strong>##VENDOR_NAME##</strong>,</td>\r\n</tr>\r\n<tr style=\"height: 15px;\">\r\n<td style=\"height: 15px; padding-top: 10px; width: 609px;\" colspan=\"2\">Greetings!!</td>\r\n</tr>\r\n<tr style=\"height: 15px;\">\r\n<td style=\"height: 15px; padding-top: 10px; width: 609px;\" colspan=\"2\">There is a Quote Request generate for ##COMPANY_NAME## on ##PROJECT_NAME## for the following product.</td>\r\n</tr>\r\n<tr style=\"height: 30px;\">\r\n<td style=\"height: 30px; width: 609px;\" colspan=\"2\">\r\n<h3><strong>Product Details -</strong></h3>\r\n</td>\r\n</tr>\r\n<tr style=\"height: 19px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 19px; width: 186px;\">\r\n<h4>Product Name :</h4>\r\n</td>\r\n<td style=\"font-size: 15px; height: 19px; width: 421px;\">##PRODUCT_NAME##&nbsp;</td>\r\n</tr>\r\n<tr style=\"height: 38px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 38px; width: 186px;\">\r\n<h4>Brand Name :</h4>\r\n</td>\r\n<td style=\"font-size: 15px; height: 38px; width: 421px;\">##BRAND_NAME##</td>\r\n</tr>\r\n<tr style=\"height: 38px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 38px; width: 186px;\">\r\n<h4>Quote Quantity :</h4>\r\n</td>\r\n<td style=\"font-size: 15px; height: 38px; width: 421px;\">##QUOTE_QUANTITY##</td>\r\n</tr>\r\n<tr style=\"height: 38px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 38px; width: 186px;\">\r\n<h4>Expected Delivery in Days :</h4>\r\n</td>\r\n<td style=\"font-size: 15px; height: 38px; width: 421px;\">##EXPECTED_DELIVERY_DAYS## Days</td>\r\n</tr>\r\n<tr style=\"height: 38px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 38px; width: 186px;\">\r\n<h4>Additional Notes :</h4>\r\n</td>\r\n<td style=\"font-size: 15px; height: 38px; width: 421px;\">##EMAIL_BODY##</td>\r\n</tr>\r\n<tr style=\"height: 30px;\">\r\n<td style=\"height: 30px; border-bottom: 1px solid #cccccc; width: 609px;\" colspan=\"2\">&nbsp;</td>\r\n</tr>\r\n<tr style=\"height: 15px;\">\r\n<td style=\"height: 15px; padding-top: 10px; width: 609px;\" colspan=\"2\">To enquire more about the above quote, please contact our ##SITE_NAME## team.</td>\r\n</tr>\r\n<tr style=\"height: 40px;\">\r\n<td style=\"height: 40px; width: 609px;\" colspan=\"2\">&nbsp;</td>\r\n</tr>\r\n<tr style=\"height: 18px;\">\r\n<td style=\"height: 18px; width: 609px;\" colspan=\"2\">\r\n<p>Thanks and Regards,</p>\r\n<p>##PROJECT_NAME## Team</p>\r\n</td>\r\n</tr>\r\n</tbody>\r\n</table>' WHERE `email_template`.`id` = 71;
+
+UPDATE `email_template` SET `template_html` = '<table style=\"padding: 20px; height: 651px; width: 653px;\" border=\"0\" width=\"850\" cellspacing=\"0\" cellpadding=\"0\" bgcolor=\"#fff\">\r\n<tbody>\r\n<tr style=\"height: 15px;\">\r\n<td style=\"height: 15px; padding-top: 10px; width: 609px;\" colspan=\"2\">Hello <strong>##VENDOR_NAME##</strong>,</td>\r\n</tr>\r\n<tr style=\"height: 15px;\">\r\n<td style=\"height: 15px; padding-top: 10px; width: 609px;\" colspan=\"2\">Greetings!!</td>\r\n</tr>\r\n<tr style=\"height: 15px;\">\r\n<td style=\"height: 15px; padding-top: 10px; width: 609px;\" colspan=\"2\">There is a Quote Request generate for ##COMPANY_NAME## on ##PROJECT_NAME## for the following product.</td>\r\n</tr>\r\n<tr style=\"height: 30px;\">\r\n<td style=\"height: 30px; width: 609px;\" colspan=\"2\">\r\n<h3><strong>Product Details -</strong></h3>\r\n</td>\r\n</tr>\r\n<tr style=\"height: 19px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 19px; width: 186px;\">\r\n<h4>Product Name :</h4>\r\n</td>\r\n<td style=\"font-size: 15px; height: 19px; width: 421px;\">##PRODUCT_NAME##&nbsp;</td>\r\n</tr>\r\n<tr style=\"height: 38px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 38px; width: 186px;\">\r\n<h4>Brand Name :</h4>\r\n</td>\r\n<td style=\"font-size: 15px; height: 38px; width: 421px;\">##BRAND_NAME##</td>\r\n</tr>\r\n<tr style=\"height: 38px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 38px; width: 186px;\">\r\n<h4>Quote Quantity :</h4>\r\n</td>\r\n<td style=\"font-size: 15px; height: 38px; width: 421px;\">##QUOTE_QUANTITY##</td>\r\n</tr>\r\n<tr style=\"height: 38px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 38px; width: 186px;\">\r\n<h4>Expected Delivery in Days :</h4>\r\n</td>\r\n<td style=\"font-size: 15px; height: 38px; width: 421px;\">##EXPECTED_DELIVERY_DAYS## Days</td>\r\n</tr>\r\n<tr style=\"height: 38px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 38px; width: 186px;\">\r\n<h4>Additional Notes :</h4>\r\n</td>\r\n<td style=\"font-size: 15px; height: 38px; width: 421px;\">##EMAIL_BODY##</td>\r\n</tr>\r\n<tr style=\"height: 30px;\">\r\n<td style=\"height: 30px; border-bottom: 1px solid #cccccc; width: 609px;\" colspan=\"2\">&nbsp;</td>\r\n</tr>\r\n<tr style=\"height: 15px;\">\r\n<td style=\"height: 15px; padding-top: 10px; width: 609px;\" colspan=\"2\">To enquire more about the above quote, please contact our ##PROJECT_NAME## team.</td>\r\n</tr>\r\n<tr style=\"height: 40px;\">\r\n<td style=\"height: 40px; width: 609px;\" colspan=\"2\">&nbsp;</td>\r\n</tr>\r\n<tr style=\"height: 18px;\">\r\n<td style=\"height: 18px; width: 609px;\" colspan=\"2\">\r\n<p>Thanks and Regards,</p>\r\n<p>##PROJECT_NAME## Team</p>\r\n</td>\r\n</tr>\r\n</tbody>\r\n</table>' WHERE `email_template`.`id` = 71;
+
+
+
+ALTER TABLE site_settings ADD COLUMN `tinymce_api_key` VARCHAR(150), ADD COLUMN `product_min_qty` INT(10) DEFAULT 1000
+ALTER TABLE `site_settings` CHANGE `product_min_qty` `product_max_qty` INT(10) NULL DEFAULT '1000';
+ALTER TABLE `site_settings` ADD `favicon` VARCHAR(150) NULL DEFAULT NULL AFTER `product_max_qty`;
+
+
+// Update retaile price by Harshada on date 09 Dec 2020 only for rejoiz
+
+update `products` set `retail_price` = (((150 * `unit_wholsale_price`) / 100 ) + `unit_wholsale_price`) WHERE 1
+
+ALTER TABLE `customer_transaction` ADD `discount_percent` INT NULL AFTER `promotion_discount`;
+ALTER TABLE `customer_transaction` CHANGE `discount_percent` `discount_percent` FLOAT NULL DEFAULT NULL;
+
+
+
+-------09 Dec 2020 (Vishal)
+ALTER TABLE `influencer_settings` CHANGE `discount_on_promo_code` `discount_on_promo_code` INT NOT NULL COMMENT 'In percentage';
+
+
+
+----11 Dec 2020 (Vishal)
+
+- Change text quote quantity to product quantity.
+
+UPDATE `email_template` SET `template_html` = '<table style=\"padding: 20px; height: 651px; width: 653px;\" border=\"0\" width=\"850\" cellspacing=\"0\" cellpadding=\"0\" bgcolor=\"#fff\">\r\n<tbody>\r\n<tr style=\"height: 15px;\">\r\n<td style=\"height: 15px; padding-top: 10px; width: 609px;\" colspan=\"2\">Hello <strong>##VENDOR_NAME##</strong>,</td>\r\n</tr>\r\n<tr style=\"height: 15px;\">\r\n<td style=\"height: 15px; padding-top: 10px; width: 609px;\" colspan=\"2\">Greetings!!</td>\r\n</tr>\r\n<tr style=\"height: 15px;\">\r\n<td style=\"height: 15px; padding-top: 10px; width: 609px;\" colspan=\"2\">There is a Quote Request generate for ##COMPANY_NAME## on ##PROJECT_NAME## for the following product.</td>\r\n</tr>\r\n<tr style=\"height: 30px;\">\r\n<td style=\"height: 30px; width: 609px;\" colspan=\"2\">\r\n<h3><strong>Product Details -</strong></h3>\r\n</td>\r\n</tr>\r\n<tr style=\"height: 19px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 19px; width: 186px;\">\r\n<h4>Product Name :</h4>\r\n</td>\r\n<td style=\"font-size: 15px; height: 19px; width: 421px;\">##PRODUCT_NAME##&nbsp;</td>\r\n</tr>\r\n<tr style=\"height: 38px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 38px; width: 186px;\">\r\n<h4>Brand Name :</h4>\r\n</td>\r\n<td style=\"font-size: 15px; height: 38px; width: 421px;\">##BRAND_NAME##</td>\r\n</tr>\r\n<tr style=\"height: 38px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 38px; width: 186px;\">\r\n<h4>Product Quantity :</h4>\r\n</td>\r\n<td style=\"font-size: 15px; height: 38px; width: 421px;\">##QUOTE_QUANTITY##</td>\r\n</tr>\r\n<tr style=\"height: 38px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 38px; width: 186px;\">\r\n<h4>Expected Delivery in Days :</h4>\r\n</td>\r\n<td style=\"font-size: 15px; height: 38px; width: 421px;\">##EXPECTED_DELIVERY_DAYS## Days</td>\r\n</tr>\r\n<tr style=\"height: 38px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 38px; width: 186px;\">\r\n<h4>Additional Notes :</h4>\r\n</td>\r\n<td style=\"font-size: 15px; height: 38px; width: 421px;\">##EMAIL_BODY##</td>\r\n</tr>\r\n<tr style=\"height: 30px;\">\r\n<td style=\"height: 30px; border-bottom: 1px solid #cccccc; width: 609px;\" colspan=\"2\">&nbsp;</td>\r\n</tr>\r\n<tr style=\"height: 15px;\">\r\n<td style=\"height: 15px; padding-top: 10px; width: 609px;\" colspan=\"2\">To enquire more about the above quote, please contact our ##PROJECT_NAME## team.</td>\r\n</tr>\r\n<tr style=\"height: 40px;\">\r\n<td style=\"height: 40px; width: 609px;\" colspan=\"2\">&nbsp;</td>\r\n</tr>\r\n<tr style=\"height: 18px;\">\r\n<td style=\"height: 18px; width: 609px;\" colspan=\"2\">\r\n<p>Thanks and Regards,</p>\r\n<p>##PROJECT_NAME## Team</p>\r\n</td>\r\n</tr>\r\n</tbody>\r\n</table>' WHERE `email_template`.`id` = 71;
+
+
+
+UPDATE `email_template` SET `template_html` = '<table style=\"padding: 20px; height: 492px;\" border=\"0\" width=\"821\" cellspacing=\"0\" cellpadding=\"0\" bgcolor=\"#fff\">\r\n<tbody>\r\n<tr style=\"height: 15px;\">\r\n<td style=\"height: 15px; padding-top: 10px; width: 777px;\" colspan=\"2\">Hello <strong>##ADMIN_NAME##</strong>,</td>\r\n</tr>\r\n<tr style=\"height: 15px;\">\r\n<td style=\"height: 15px; padding-top: 10px; width: 777px;\" colspan=\"2\">Greetings!!</td>\r\n</tr>\r\n<tr style=\"height: 15px;\">\r\n<td style=\"height: 15px; padding-top: 10px; width: 777px;\" colspan=\"2\">Below user sent a quotation to ##VENDOR_COMPANY## vendor.</td>\r\n</tr>\r\n<tr style=\"height: 30px;\">\r\n<td style=\"height: 30px; width: 777px;\" colspan=\"2\"><strong>Product Details -</strong></td>\r\n</tr>\r\n<tr style=\"height: 19px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 19px; width: 205px;\">Product Name :</td>\r\n<td style=\"font-size: 15px; height: 19px; width: 570px;\">##PRODUCT_NAME##&nbsp;</td>\r\n</tr>\r\n<tr style=\"height: 38px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 38px; width: 205px;\">Brand Name :</td>\r\n<td style=\"font-size: 15px; height: 38px; width: 570px;\">##PRODUCT_BRAND_NAME##</td>\r\n</tr>\r\n<tr style=\"height: 30px;\">\r\n<td style=\"height: 30px; border-bottom: 1px solid #cccccc; width: 777px;\" colspan=\"2\">&nbsp;</td>\r\n</tr>\r\n<tr style=\"height: 20px;\">\r\n<td style=\"height: 20px; width: 777px;\" colspan=\"2\"><strong>User Details -</strong></td>\r\n</tr>\r\n<tr style=\"height: 19px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 19px; width: 205px;\">Name :</td>\r\n<td style=\"font-size: 15px; height: 19px; width: 570px;\">##QUOTE_USER_NAME##</td>\r\n</tr>\r\n<tr style=\"height: 39px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 39px; width: 205px;\">Contact Number :</td>\r\n<td style=\"font-size: 15px; height: 39px; width: 570px;\">##QUOTE_USER_CONTACT_NO##</td>\r\n</tr>\r\n<tr style=\"height: 19px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 19px; width: 205px;\">Email :</td>\r\n<td style=\"font-size: 15px; height: 19px; width: 570px;\">##QUOTE_USER_EMAIL##</td>\r\n</tr>\r\n<tr style=\"height: 39px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 39px; width: 205px;\">Product Quantity :</td>\r\n<td style=\"font-size: 15px; height: 39px; width: 570px;\">##QUOTE_USER_QUANTITY##</td>\r\n</tr>\r\n<tr style=\"height: 58px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 58px; width: 205px;\">Expected Delivery in Days :</td>\r\n<td style=\"font-size: 15px; height: 58px; width: 570px;\">##EXPECTED_DAYS##</td>\r\n</tr>\r\n<tr style=\"height: 39px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 39px; width: 205px;\">Expected Delivery Date :</td>\r\n<td style=\"font-size: 15px; height: 39px; width: 570px;\">##EXPECTED_DELIVERY_DATE##</td>\r\n</tr>\r\n<tr style=\"height: 39px;\">\r\n<td style=\"font-size: 15px; font-weight: bold; height: 39px; width: 205px;\">Additional Note :</td>\r\n<td style=\"font-size: 15px; height: 39px; width: 570px;\">##QUOTE_USER_ADDITIONAL_NOTES##</td>\r\n</tr>\r\n<tr style=\"height: 40px;\">\r\n<td style=\"height: 40px; width: 777px;\" colspan=\"2\">&nbsp;</td>\r\n</tr>\r\n<tr style=\"height: 18px;\">\r\n<td style=\"height: 18px; width: 777px;\" colspan=\"2\">\r\n<p>Thanks and Regards,</p>\r\n<p>##PROJECT_NAME## Team</p>\r\n</td>\r\n</tr>\r\n</tbody>\r\n</table>' WHERE `email_template`.`id` = 70;
+
+--------------------------------------------------------
+10 Dec By Harshada kothmire 
+--------------------------------------------------------
+
+// For category table
+ALTER TABLE `category` ADD `admin_confirm_status` TINYINT(4) NOT NULL COMMENT '0 - Approved, 1 - Rejected,2 - Pending' AFTER `category_image`;
+
+ALTER TABLE `category` ADD `request_cat_update_date` DATETIME NULL DEFAULT NULL AFTER `admin_confirm_status`;
+
+ALTER TABLE `category` ADD `reject_reason` TEXT NOT NULL COMMENT 'if admin_confirm_status = 1 then inserted reason of reject category ' AFTER `request_cat_update_date`;
+
+ALTER TABLE `category` ADD `maker_id` INT NOT NULL AFTER `admin_confirm_status`;
+
+// For sub category table
+ALTER TABLE `subcategory` ADD `admin_confirm_status` TINYINT(4) NOT NULL COMMENT '0 - Approved, 1 - Rejected,2 - Pending' AFTER `is_active`;
+
+ALTER TABLE `subcategory` ADD `request_cat_update_date` DATETIME NULL DEFAULT NULL AFTER `admin_confirm_status`;
+
+ALTER TABLE `subcategory` ADD `reject_reason` TEXT NOT NULL COMMENT 'if admin_confirm_status = 1 then inserted reason of reject subcategory ' AFTER `request_cat_update_date`;
+
+ALTER TABLE `subcategory` ADD `maker_id` INT NOT NULL AFTER `admin_confirm_status`;
+-------------------------------------------------------------------------------------------------
+Query added by Nitish sir
+---------------------------------------------------------
+Queries: 
+---------------------------------------------------------
+ALTER TABLE `zip_extraction` ADD INDEX(`zip_name`);
+ALTER TABLE `products_details` ADD INDEX(`is_deleted`);
+ALTER TABLE `jobs` CHANGE `id` `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+---------------------------------------------------------
+View:
+---------------------------------------------------------
+
+CREATE VIEW vw_products_basic_details
+as
+SELECT `products`.`id`                  AS `id`, 
+       `products`.`user_id`             AS `user_id`, 
+       `products`.`brand`               AS `brand`, 
+       `products`.`is_deleted`          AS `is_deleted`, 
+       `products`.`is_active`           AS `is_active`, 
+       `products`.`is_archive`          AS `is_archive`, 
+       `products`.`is_remark_checked`   AS `is_remark_checked`, 
+       `products`.`is_draft`            AS `is_draft`, 
+       `products`.`is_best_seller`      AS `is_best_seller`, 
+       `products`.`is_tester_available` AS `is_tester_available`, 
+       `products`.`product_name`        AS `product_name`, 
+       `products_details`.`sku`         AS `sku` 
+FROM   (`products` 
+INNER JOIN `products_details` 
+          ON( `products_details`.`product_id` = `products`.`id` )) 
+WHERE  1; 
+
+
+---------------------------------------------------------
+To Delete All Products from particular vendor
+---------------------------------------------------------
+SET @user_id = 756;
+
+DELETE products_details from products_details
+INNER JOIN products
+ON products.id = products_details.product_id
+WHERE products.user_id = @user_id;
+
+DELETE product_images from product_images
+INNER JOIN products
+ON products.id = product_images.product_id
+WHERE products.user_id = @user_id;
+
+DELETE product_inventory from product_inventory
+INNER JOIN products
+ON products.id = product_inventory.product_id
+WHERE products.user_id = @user_id;
+
+DELETE product_sub_categories from product_sub_categories
+INNER JOIN products
+ON products.id = product_sub_categories.product_id
+WHERE products.user_id = @user_id;
+
+DELETE FROM `products` 
+WHERE `user_id` = @user_id 
+
+
+
+---------------------------------------------------------
+To Delete Specific Brand Products from particular vendor
+---------------------------------------------------------
+
+
+
+SET @user_id = 756, @brand_id = 3;
+
+DELETE products_details from products_details
+INNER JOIN products
+ON products.id = products_details.product_id
+WHERE products.user_id = @user_id AND products.brand = @brand_id;
+
+DELETE product_images from product_images
+INNER JOIN products
+ON products.id = product_images.product_id
+WHERE products.user_id = @user_id AND products.brand = @brand_id;
+
+DELETE product_inventory from product_inventory
+INNER JOIN products
+ON products.id = product_inventory.product_id
+WHERE products.user_id = @user_id AND products.brand = @brand_id;
+
+DELETE product_sub_categories from product_sub_categories
+INNER JOIN products
+ON products.id = product_sub_categories.product_id
+WHERE products.user_id = @user_id AND products.brand = @brand_id;
+
+DELETE FROM `products` 
+WHERE `user_id` = @user_id 
+AND brand = @brand_id;
+
+
+
+
+
+******************************************  START *****************************************************************
+
+Date : 15/12/2020 (Make Stripe Account key Dynamic)
+
+ALTER TABLE `stripe_account_details` ADD `is_active` TINYINT(1) NOT NULL COMMENT '0 => Deactive , 1 => Active' AFTER `client_id`;
+
+ ALTER TABLE `stripe_account_details` CHANGE `secret_key` `secret_key` VARCHAR(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL;
+
+ ALTER TABLE `transactions` ADD `stripe_key_id` INT NOT NULL AFTER `transaction_id`;
+
+ ALTER TABLE `stripe_vendor_retailer_mapping` ADD `stripe_key_id` INT NOT NULL AFTER `vendor_id`;
+
+ ALTER TABLE `stripe_vendor_customer_mapping` ADD `stripe_key_id` INT NOT NULL AFTER `vendor_id`;
+
+ ALTER TABLE `stripe_card_mapping` ADD `stripe_key_id` INT NOT NULL AFTER `id`;
+    
+ ALTER TABLE `customer_transaction` ADD `discount_percent` INT NULL AFTER `promotion_discount`;
+
+ALTER TABLE `card_detail` ADD `stripe_key_id` INT NOT NULL AFTER `user_id`;
+
+CREATE TABLE `user_and_stripe_card_mapping_details` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `to_stripe_key_id` int(11) NOT NULL,
+ `from_stripe_key_id` int(11) NOT NULL,
+ `admin_id` int(11) NOT NULL,
+ `user_id` int(11) NOT NULL,
+ `card_id` int(11) NOT NULL,
+ `stripe_card_id` varchar(250) NOT NULL,
+ `stripe_customer_id` varchar(250) NOT NULL,
+ `created_at` timestamp NULL DEFAULT current_timestamp(),
+ `updated_at` timestamp NULL DEFAULT current_timestamp(),
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4
+
+ALTER TABLE `representative_leads` ADD `stripe_key_id` INT NULL DEFAULT NULL AFTER `is_direct_payment`;
+
+ALTER TABLE `customer_transaction` ADD `stripe_key_id` INT NULL DEFAULT NULL AFTER `is_direct_payment`;
+
+ALTER TABLE `retailer_transaction` ADD `stripe_key_id` INT NULL DEFAULT NULL AFTER `is_direct_payment`;
+
+ALTER TABLE `admin_connected_stripe_account_details` ADD `stripe_key_id` INT NULL DEFAULT NULL AFTER `vendor_id`;
+
+ALTER TABLE `admin_connected_stripe_account_details` CHANGE `stripe_key_id` `admin_stripe_key_id` INT(11) NULL DEFAULT NULL;
+
+ALTER TABLE `admin_connected_stripe_account_details` ADD `vendor_stripe_key_id` INT NULL DEFAULT NULL AFTER `admin_stripe_key_id`;
+
+ALTER TABLE `admin_connected_stripe_account_details` CHANGE `vendor_id` `vendor_id` INT(10) NOT NULL DEFAULT '0' COMMENT 'If vendor_id is == 0 then user_id is connected to admin\r\nelse vendor_id is != 0 then user_id is connected to vendor\r\n';
+
+ALTER TABLE `retailer_transaction` ADD `transfer_commission_stripe_key_id` INT(11) NOT NULL AFTER `stripe_key_id`, ADD `received_commission_stripe_key_id` INT(11) NOT NULL AFTER `transfer_commission_stripe_key_id`;
+
+ALTER TABLE `customer_transaction` ADD `transfer_commission_stripe_key_id` INT(11) NOT NULL AFTER `stripe_key_id`, ADD `received_commission_stripe_key_id` INT(11) NOT NULL AFTER `transfer_commission_stripe_key_id`;
+
+ALTER TABLE `representative_leads` ADD `transfer_commission_stripe_key_id` INT(11) NOT NULL AFTER `stripe_key_id`, ADD `received_commission_stripe_key_id` INT(11) NOT NULL AFTER `transfer_commission_stripe_key_id`;
+
+ALTER TABLE `customer_transaction` CHANGE `stripe_key_id` `stripe_key_id` INT(11) NULL;
+
+ALTER TABLE `retailer_transaction` CHANGE `stripe_key_id` `stripe_key_id` INT(11) NULL;
+
+ALTER TABLE `representative_leads` CHANGE `stripe_key_id` `stripe_key_id` INT(11) NULL;
+
+ALTER TABLE `admin_connected_stripe_account_details` ADD `user_stripe_email_id` VARCHAR(100) NOT NULL AFTER `stripe_customer_id`;
+
+ALTER TABLE `stripe_account_details` ADD `account_holder` VARCHAR(200) NOT NULL AFTER `client_id`;
+
+ALTER TABLE `admin_connected_stripe_account_details` CHANGE `user_stripe_email_id` `user_stripe_email_id` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL;
+
+ALTER TABLE `user_and_stripe_card_mapping_details` ADD `fingerprint` VARCHAR(266) NULL AFTER `stripe_customer_id`;
+
+
+****************************************  END  ****************************************************************
+
+________________________________________________________________
+Abbas Kapsi / Abhijit ghorade (24 december)
+________________________________________________________________
+ALTER TABLE `site_settings` ADD `website_url` VARCHAR(150) NOT NULL AFTER `meta_keyword`;
+
+__________________________________________________________________
+
+
+
+
+
+
+
+
+
+
+
+date 25/12/2020  (developer -> priyanka)
+
+email template changes
+
+1) UPDATE `email_template` SET `template_variables` = '##user_role##~##HTML##~##PROJECT_NAME##' WHERE `email_template`.`id` = 47;
+
+2)UPDATE `email_template` SET `template_subject` = 'Commission received' WHERE `email_template`.`id` = 61;
+
+
+3) UPDATE `email_template` SET `template_subject` = 'Commission Paid' WHERE `email_template`.`id` = 47;
+
+4) UPDATE `email_template` SET `template_name` = 'Requested category status' WHERE `email_template`.`id` = 62;
+
+5) UPDATE `email_template` SET `template_subject` = 'Requested category status' WHERE `email_template`.`id` = 62;
+
+
+6) UPDATE `email_template` SET `template_subject` = 'Purchase order' WHERE `email_template`.`id` = 43;
+
+7) UPDATE `email_template` SET `template_subject` = 'Purchase order' WHERE `email_template`.`id` = 36;
+
+8) UPDATE `email_template` SET `template_subject` = 'Purchase order' WHERE `email_template`.`id` = 48;
+
+9) UPDATE `email_template` SET `template_subject` = 'New order placed' WHERE `email_template`.`id` = 49;
+
+10) UPDATE `email_template` SET `template_subject` = 'New order placed' WHERE `email_template`.`id` = 46;
+
+
+
+28 Dec (Vishal)
+
+1) UPDATE `email_template` SET `template_subject` = 'Net30 order payment' WHERE `email_template`.`id` = 60;
+
+2) UPDATE `email_template` SET `template_subject` = 'Order confirmed' WHERE `email_template`.`id` = 54;
+
+
+3) UPDATE `email_template` SET `template_name` = 'Cancel order' WHERE `email_template`.`id` = 39;
+
+4) UPDATE `email_template` SET `template_subject` = 'Cancel order' WHERE `email_template`.`id` = 39;
+
+5) UPDATE `email_template` SET `template_subject` = 'Net30 order payment' WHERE `email_template`.`id` = 55;
+
+6) UPDATE `email_template` SET `template_subject` = 'Payment Received' WHERE `email_template`.`id` = 61;
+
+
+6) UPDATE `email_template` SET `template_subject` = 'Order confirmed' WHERE `email_template`.`id` = 38;
+
+7) UPDATE `email_template` SET `template_name` = 'Order confirmed' WHERE `email_template`.`id` = 38;
+
+8) UPDATE `email_template` SET `template_subject` = 'Net30 order payment-Received' WHERE `email_template`.`id` = 66;
+
+9) UPDATE `email_template` SET `template_subject` = 'Split Order' WHERE `email_template`.`id` = 44;
+
+10) UPDATE `email_template` SET `template_subject` = 'Split Order' WHERE `email_template`.`id` = 45;
+
+ ------Mail for cancel order confirmation (Approved).
+
+11) INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'Cancel order confirmation', 'Cancel order confirmation', 'Admin-##project_name##', 'rw.barbara123@gmail.com', '<p>Dear Sir/Ma\'am,</p>\r\n<p>Order ##ORDER_NO## , Vendor has been approved your cancel order request.</p>\r\n<p>Thanks and Regards, &nbsp; &nbsp; &nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>\r\n<p>&nbsp;</p>', '##ORDER_NO##~##PROJECT_NAME##', NULL, NULL, '2020-12-05 02:12:07');
+
+12) UPDATE `email_template` SET `template_html` = '<p>Dear Sir/Ma\'am,</p>\r\n<p>Order No: ##ORDER_NO##, Vendor has been approved your cancel order request.</p>\r\n<p>Thanks and Regards, &nbsp; &nbsp; &nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>\r\n<p>&nbsp;</p>', `deleted_at` = NULL, `created_at` = NULL WHERE `email_template`.`id` = 72;
+
+------Mail for cancel order confirmation (Reject).
+13) INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'Cancel order confirmation', 'Cancel order confirmation', 'Admin-##project_name##', 'rw.barbara123@gmail.com', '<p>Dear Sir/Ma\'am,</p>\r\n<p>Order No: ##ORDER_NO##, Vendor has been rejected your cancel order request.</p>\r\n<p>Vendor Rejection Reason: ##REJECT_REASON##</p>\r\n<p>Thanks and Regards, &nbsp; &nbsp; &nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>\r\n<p>&nbsp;</p>', '##ORDER_NO##~##PROJECT_NAME##~##REJECT_REASON##', NULL, NULL, '2020-12-05 02:12:07');
+
+
+
+UPDATE `email_template` SET `template_html` = '<p>Dear Sir/Madam,</p>\r\n<p>New order placed by ##REP_NAME## (##USER_ROLE##), please check attachment for further details and confirm the order for further process.</p>\r\n<p>Thanks and Regards, &nbsp; &nbsp; &nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>\r\n<p>&nbsp;</p>' WHERE `email_template`.`id` = 46;
+
+
+UPDATE `email_template` SET `template_variables` = '##REP_NAME##~##PROJECT_NAME##~##USER_ROLE##' WHERE `email_template`.`id` = 46;
+
+
+
+UPDATE `email_template` SET `template_html` = '<p>Dear Sir/Madam,</p>\r\n<p>New order placed by ##REP_NAME## (##USER_ROLE##), please check attachment for further details.</p>\r\n<p>Thanks and Regards, &nbsp; &nbsp; &nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>\r\n<p>&nbsp;</p>' WHERE `email_template`.`id` = 49;
+
+
+UPDATE `email_template` SET `template_variables` = '##REP_NAME##~##PROJECT_NAME##~##USER_ROLE##' WHERE `email_template`.`id` = 49;
+
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'Confirm Order to admin', 'Confirm Order', 'Admin-##project_name##', 'rw.barbara123@gmail.com', '<p>Hello Admin,</p>\r\n<p>##HTML##</p>\r\n<p>Thanks and regards,&nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>', '##deducted_amount##~##order_no##~##user_role##~##PROJECT_NAME##', NULL, '2020-03-03 18:30:00', '2020-12-05 02:13:56');
+
+
+
+
+UPDATE `email_template` SET `template_subject` = 'Order confirmed' WHERE `email_template`.`id` = 74;
+
+
+
+
+
+
+
+new query
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'Payment Received', 'Payment Received', 'Admin-##project_name##', 'rw.barbara123@gmail.com', '<p>Hello Sir/Ma\'am,</p>\r\n<p>Payment $##commission_amount## has received successfully of order no: (##order_no##)</p>\r\n<p>order no: ##order_no##</p>\r\n<p>Thanks and Regards,&nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>', '##commission_amount##~##order_no##~##PROJECT_NAME##', NULL, '2019-09-27 17:19:56', '2020-12-04 20:39:06');
+
+
+UPDATE `email_template` SET `template_subject` = 'Commission Received' WHERE `email_template`.`id` = 61;
+
+
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'New User Request Category', 'New User Request Category', 'Admin-##project_name##', 'rw.barbara123@gmail.com', '<p>&nbsp;</p>\r\n<p>&nbsp;Hello<strong> ##USER_FNAME##, </strong></p>\r\n<div style=\"text-align: left;\">&nbsp;</div>\r\n<div style=\"text-align: left;\">##EMAIL_DESCRIPTION##</div>\r\n<div style=\"text-align: left;\">&nbsp;</div>\r\n<div style=\"text-align: left;\">&nbsp;</div>\r\n<div style=\"text-align: center;\">&nbsp;</div>\r\n<div style=\"text-align: center;\">&nbsp;</div>\r\n<div style=\"text-align: center;\">##REDIRECTION_URL## .<br /><br /></div>\r\n<div>&nbsp;</div>\r\n<div>&nbsp;</div>\r\n<div>&nbsp;</div>\r\n<div>Thanks and Regards,<br />&nbsp;##APP_NAME## Team</div>', '##USER_FNAME##~##EMAIL_DESCRIPTION##~##REDIRECTION_URL##~##APP_NAME##', NULL, '2020-06-19 22:49:56', '2020-12-04 20:38:48');
+
+
+
+
+
+
+
+UPDATE `email_template` SET `template_subject` = 'Net30 order confirmed' WHERE `email_template`.`id` = 58;
+
+
+
+
+for api app this query is required
+
+ALTER TABLE `users` ADD `otp` VARCHAR(11) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `last_name`
+
+
+
+date 6/1/2020 (priyanka)
+
+UPDATE `email_template` SET `template_name` = 'Payment Reminder' WHERE `email_template`.`id` = 69;
+
+
+
+date 7/1/2020 (priyanka)
+
+1) INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'Request Category Deleted', 'Request Category Deleted', 'Admin-##project_name##', 'rw.barbara123@gmail.com', '<p>&nbsp;</p>\r\n<p>&nbsp;Hello<strong> ##USER_FNAME##, </strong></p>\r\n<div style=\"text-align: left;\">&nbsp;</div>\r\n<div style=\"text-align: left;\">##EMAIL_DESCRIPTION##</div>\r\n<div style=\"text-align: left;\">&nbsp;</div>\r\n<div style=\"text-align: left;\">&nbsp;</div>\r\n<div style=\"text-align: center;\">&nbsp;</div>\r\n<div style=\"text-align: center;\">&nbsp;</div>\r\n<div style=\"text-align: center;\">##REDIRECTION_URL## .<br /><br /></div>\r\n<div>&nbsp;</div>\r\n<div>&nbsp;</div>\r\n<div>&nbsp;</div>\r\n<div>Thanks and Regards,<br />&nbsp;##APP_NAME## Team</div>', '##USER_FNAME##~##EMAIL_DESCRIPTION##~##REDIRECTION_URL##~##APP_NAME##', NULL, '2020-06-19 22:49:56', '2020-12-04 20:38:48');
+
+
+
+2) INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'Request for category', 'Request for category', 'Admin-##project_name##', 'rw.barbara123@gmail.com', '<p>&nbsp;</p>\r\n<p>&nbsp;Hello<strong> ##USER_FNAME##, </strong></p>\r\n<div style=\"text-align: left;\">&nbsp;</div>\r\n<div style=\"text-align: left;\">##EMAIL_DESCRIPTION##</div>\r\n<div style=\"text-align: left;\">&nbsp;</div>\r\n<div style=\"text-align: left;\">&nbsp;</div>\r\n<div style=\"text-align: center;\">&nbsp;</div>\r\n<div style=\"text-align: center;\">&nbsp;</div>\r\n<div style=\"text-align: center;\">##REDIRECTION_URL## .<br /><br /></div>\r\n<div>&nbsp;</div>\r\n<div>&nbsp;</div>\r\n<div>&nbsp;</div>\r\n<div>Thanks and Regards,<br />&nbsp;##APP_NAME## Team</div>', '##USER_FNAME##~##EMAIL_DESCRIPTION##~##REDIRECTION_URL##~##APP_NAME##', NULL, '2020-06-19 22:49:56', '2020-12-04 20:38:48');
+
+
+
+3) INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'Request For Sub-category', 'Request For Sub-category', 'Admin-##project_name##', 'rw.barbara123@gmail.com', '<p>&nbsp;</p>\r\n<p>&nbsp;Hello<strong> ##USER_FNAME##, </strong></p>\r\n<div style=\"text-align: left;\">&nbsp;</div>\r\n<div style=\"text-align: left;\">##EMAIL_DESCRIPTION##</div>\r\n<div style=\"text-align: left;\">&nbsp;</div>\r\n<div style=\"text-align: left;\">&nbsp;</div>\r\n<div style=\"text-align: center;\">&nbsp;</div>\r\n<div style=\"text-align: center;\">&nbsp;</div>\r\n<div style=\"text-align: center;\">##REDIRECTION_URL## .<br /><br /></div>\r\n<div>&nbsp;</div>\r\n<div>&nbsp;</div>\r\n<div>&nbsp;</div>\r\n<div>Thanks and Regards,<br />&nbsp;##APP_NAME## Team</div>', '##USER_FNAME##~##EMAIL_DESCRIPTION##~##REDIRECTION_URL##~##APP_NAME##', NULL, '2020-06-19 22:49:56', '2020-12-04 20:38:48');
+
+
+4) INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'Request Sub-category Deleted', 'Request Sub-category Deleted', 'Admin-##project_name##', 'rw.barbara123@gmail.com', '<p>&nbsp;</p>\r\n<p>&nbsp;Hello<strong> ##USER_FNAME##, </strong></p>\r\n<div style=\"text-align: left;\">&nbsp;</div>\r\n<div style=\"text-align: left;\">##EMAIL_DESCRIPTION##</div>\r\n<div style=\"text-align: left;\">&nbsp;</div>\r\n<div style=\"text-align: left;\">&nbsp;</div>\r\n<div style=\"text-align: center;\">&nbsp;</div>\r\n<div style=\"text-align: center;\">&nbsp;</div>\r\n<div style=\"text-align: center;\">##REDIRECTION_URL## .<br /><br /></div>\r\n<div>&nbsp;</div>\r\n<div>&nbsp;</div>\r\n<div>&nbsp;</div>\r\n<div>Thanks and Regards,<br />&nbsp;##APP_NAME## Team</div>', '##USER_FNAME##~##EMAIL_DESCRIPTION##~##REDIRECTION_URL##~##APP_NAME##', NULL, '2020-06-19 22:49:56', '2020-12-04 20:38:48');
+
+
+
+date 7/1/2021 (Ashwini)
+
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'Forgot Password OTP', 'Reset Password OTP', 'Admin-##project_name##', 'rw.barbara123@gmail.com', '<p>Hello <strong>##FIRST_NAME##</strong> ,</p>\r\n<p>You\'ve just requested to reset your password, Please Enter this OTP to reset your password.</p>\r\n<p>&nbsp;</p>\r\n<p style=\"text-align: center;\">&nbsp;</p>\r\n<p style=\"text-align: center;\">##REMINDER_URL##</p>\r\n<p style=\"text-align: left;\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>\r\n<p style=\"text-align: left;\">&nbsp;</p>\r\n<p style=\"text-align: left;\">&nbsp;</p>\r\n<p style=\"text-align: left;\"><br /><br />Thanks, &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; <br />The&nbsp; ##SITE_URL##&nbsp; Team&nbsp;&nbsp;</p>\r\n<p style=\"text-align: left;\">&nbsp;</p>\r\n<p style=\"text-align: left;\">&nbsp;</p>', '##FIRST_NAME##~##EMAIL##~##REMINDER_URL##~##SITE_URL##~##project_name##', NULL, NULL, NULL);
+
+/* Only for rejoiz */
+ALTER TABLE `users` CHANGE `country_code` `country_code` VARCHAR(11) NOT NULL;
+update `users` set country_code = CONCAT('+',`country_code`) WHERE 1;
+
+
+/* Update Product minimum qty if it is 0 on rejoiz and staging */
+SELECT b.id,b.product_name  FROM `products_details` as a LEFT JOIN products as b on b.id = a.product_id WHERE `product_min_qty` = 0 AND b.is_deleted = 0;
+
+SELECT b.id,b.product_name  FROM `products_details` as a LEFT JOIN products as b on b.id = a.product_id WHERE `product_min_qty` = 0;
+
+update products_details set product_min_qty = 1 where `product_min_qty` = 0;
+/* End */
+
+/* Create new table */
+CREATE TABLE `product_multiple_images` (
+  `id` int(11) UNSIGNED NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `product_detail_id` int(11) NOT NULL COMMENT 'primary key of table products_details',
+  `sku` varchar(100) NOT NULL,
+  `product_image` varchar(200) DEFAULT NULL,
+  `is_deleted` tinyint(4) DEFAULT 0 COMMENT '0="not deleted",1="deleted"',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `deleted_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/* Ends */
+
+
+
+CREATE TABLE `product_multiple_images` (
+  `id` int(11) UNSIGNED NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `product_detail_id` int(11) NOT NULL COMMENT 'primary key of table products_details',
+  `sku` varchar(100) NOT NULL,
+  `product_image` varchar(200) DEFAULT NULL,
+  `is_deleted` tinyint(4) DEFAULT 0 COMMENT '0="not deleted",1="deleted"',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `deleted_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+/* Only for rejoiz */
+update `products_details` set product_min_qty = 1 WHERE `product_min_qty` IS NULL AND `is_deleted` = 0
+update `product_inventory` set quantity = 1000 WHERE `quantity` IS NULL AND `is_deleted` = 0
+
+
+
+
+
+
+
+
+
+
+date 29/1/2021 (subscribe email template)
+
+1)INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, '##PROJECT_NAME##', '##project_name## subscription', 'Admin-##project_name##', 'rw.barbara123@gmail.com', '<p>Hello Admin,</p>\r\n<p>There is a newsletter subscription for the following user. Please check the details.</p>\r\n<p>Subscribed email id: ##email##</p>\r\n<p>Thanks and Regards, &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; <br />##PROJECT_NAME## Team</p>\r\n<p>&nbsp;</p>', '##email##~##PROJECT_NAME##', NULL, NULL, '2020-12-04 20:48:38');
+
+------------------------------------------------------------------------------------------------------------
+/* New field to store vendor's real company name (Updated on staging and rejoiz) */
+
+ALTER TABLE `makers` ADD `real_company_name` VARCHAR(255) NOT NULL AFTER `company_name`;
+--------------------------------------------------------------------------------------------------------
+
+ALTER TABLE `retailer` ADD `category` INT NULL DEFAULT NULL AFTER `ship_contact_no`;
+
+
+-------------------------------------------------------------------------------------------------
+/* Update country code to old records ( Updated on staging and rejoiz)*/
+
+SELECT * FROM `users` WHERE `country_code` LIKE '+0' AND country_id != 0
+
+SELECT a.`country_code`,b.phonecode,a.country_id FROM `users` as a,countries_all as b WHERE b.id = a.country_id AND a.`country_code` LIKE '+0' AND a.country_id != 0
+
+Update users as a,countries_all as b set a.`country_code` = CONCAT("+",b.phonecode) WHERE b.id = a.country_id AND a.`country_code` LIKE '+0' AND a.country_id != 0
+-------------------------------------------------------------------------------------------------
+
+
+-------------------------------------------------------------------------------------------------------
+/* Add new column for dummy retailer store name */
+ALTER TABLE `retailer` ADD `dummy_store_name` VARCHAR(50) NOT NULL AFTER `store_name`;
+
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'payment_received', 'Payment Received', 'Admin-##project_name##', 'help@rejoiz.ug', '<p>Hello Sir/Ma\'am,</p>\r\n<p>Your order payment <label>$##credit_amount## </label>has been received,</p>\r\n<p>order no: ##order_no##</p>\r\n<p>Thanks and Regards,&nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>', '##credit_amount##~##order_no##~##PROJECT_NAME##', NULL, '2019-09-27 17:19:56', '2020-12-05 02:10:59');
+
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'credit amount', 'Order confirmed', 'Admin-##project_name##', 'help@rejoiz.ug', '<p>Hello Sir/Ma\'am,</p>\r\n<p>Your order has been confirmed successfully! , <br />\r\n<p>order no: ##order_no##</p>\r\n<p>Thanks and Regards,&nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>', '##order_no##~##PROJECT_NAME##', NULL, '2019-09-27 17:19:56', '2020-12-05 02:10:59');
+
+
+UPDATE `email_template` SET `template_name` = 'Order confirmed' WHERE `email_template`.`id` = 84;
+
+UPDATE `email_template` SET `template_html` = '<p>Hello Sir/Ma\'am,</p>\r\n<p>Your order has been confirmed successfully! <br />\r\n<p>order no: ##order_no##</p>\r\n<p>Thanks and Regards,&nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>' WHERE `email_template`.`id` = 84;
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'Order confirmed', 'Order confirmed', 'Admin-##project_name##', 'help@rejoiz.ug', '<p>Hello sir/Mam,</p>\r\n<p>Your order has been confirmed successfully!</p>\r\n<p>order no: ##order_no##</p>\r\n<p>Thanks and regards,&nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>', '##order_no##~##PROJECT_NAME##', NULL, '2019-09-27 17:19:56', '2020-12-05 02:17:32');
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES (NULL, 'Reps order email To admin', 'Order Placed', 'Admin-##project_name##', 'help@rejoiz.ug', '<p>Dear Sir/Madam,</p>\r\n<p>Order has been placed by retailer. Order No ##ORDER_NO##, please check attachment for further details.</p>\r\n<p>Thanks and Regards, &nbsp; &nbsp; &nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>\r\n<p>&nbsp;</p>', '##ORDER_NO##~##PROJECT_NAME##~##USER_ROLE##', NULL, NULL, '2020-12-05 02:13:13');
+
+
+
+
+-------------------------------------------------------- 06/09/2021 -----------------------------------------------
+CREATE TABLE `third_sub_category` (
+ `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+ `category_id` int(11) NOT NULL,
+ `sub_category_id` int(11) NOT NULL,
+ `is_active` tinyint(4) NOT NULL,
+ `admin_confirm_status` tinyint(4) NOT NULL,
+ `maker_id` int(11) NOT NULL,
+ `request_cat_update_date` datetime NOT NULL,
+ `reject_reason` text NOT NULL,
+ `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+ `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE current_timestamp(),
+ `deleted_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='third_sub_category'
+
+
+CREATE TABLE `third_sub_category_translation` (
+ `id` int(10) NOT NULL AUTO_INCREMENT,
+ `third_sub_category_id` int(11) NOT NULL,
+ `third_sub_category_name` varchar(256) NOT NULL,
+ `third_sub_category_slug` varchar(256) NOT NULL,
+ `locale` varchar(50) NOT NULL,
+ `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+ `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE current_timestamp(),
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='third_sub_category_translation'
+
+
+CREATE TABLE `fourth_sub_category` (
+ `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+ `category_id` int(11) NOT NULL,
+ `second_sub_category_id` int(11) NOT NULL,
+ `third_sub_category_id` int(11) NOT NULL,
+ `is_active` tinyint(4) NOT NULL,
+ `admin_confirm_status` tinyint(4) NOT NULL,
+ `maker_id` int(11) NOT NULL,
+ `request_cat_update_date` datetime NOT NULL,
+ `reject_reason` text NOT NULL,
+ `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+ `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE current_timestamp(),
+ `deleted_at` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8
+
+
+CREATE TABLE `fourth_sub_category_translation` (
+ `id` int(10) NOT NULL AUTO_INCREMENT,
+ `fourth_sub_category_id` int(11) NOT NULL,
+ `fourth_sub_category_name` varchar(256) NOT NULL,
+ `fourth_sub_category_slug` varchar(256) NOT NULL,
+ `locale` varchar(50) NOT NULL,
+ `created_at` timestamp NOT NULL,
+ `updated_at` timestamp NOT NULL,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+-------------------------------------------------------------------------------------------------------
+
+
+----------------------------------------------13-9-21--------------------------------------------------
+
+
+ALTER TABLE `product_sub_categories` ADD `third_sub_category_id` INT NOT NULL AFTER `sub_category_id`, ADD `fourth_sub_category_id` INT NOT NULL AFTER `third_sub_category_id`, ADD INDEX (`fourth_sub_category_id`), ADD INDEX (`third_sub_category_id`);
+
+
+20-9-21:
+
+ALTER TABLE `retailer_transaction` CHANGE `payment_proof` `payment_proof` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+
+
+ALTER TABLE `retailer_transaction` ADD `payment_proof` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL AFTER `order_rejected_reason`
+
+ALTER TABLE `products` ADD `restock_days` VARCHAR(255) NULL DEFAULT NULL AFTER `case_quantity`;
+
+
+ALTER TABLE `product_updated_by_vendor` ADD `update_third_subcategories_columns` VARCHAR(1000) NOT NULL AFTER `update_subcategories_columns`, ADD `update_fourth_subcategories_columns` VARCHAR(1000) NOT NULL AFTER `update_third_subcategories_columns`;
+
+ALTER TABLE `product_updated_by_vendor` CHANGE `update_productDetails_columns` `update_productDetails_columns` VARCHAR(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'save columns for Style & Dimensions grid', CHANGE `update_subcategories_columns` `update_subcategories_columns` VARCHAR(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'Save subcategories ID in json array\'';
+
+----------------------------------------------29-9-21--------------------------------------------------
+
+
+ALTER TABLE `retailer_transaction` ADD `influencer_code` VARCHAR(255) NULL DEFAULT NULL AFTER `promo_code`;
+
+ALTER TABLE `users` ADD `influencer_code` VARCHAR(255) NULL DEFAULT NULL AFTER `influencer_remaining_order_amount`;
+
+ALTER TABLE `get_quote_details` ADD `influencer_code` VARCHAR(255) NULL DEFAULT NULL AFTER `contact_number`;
+
+ALTER TABLE `retailer_transaction` CHANGE `maker_confirmation` `maker_confirmation` TINYINT(1) NULL DEFAULT '0' COMMENT '0=>not confirmed,1=>confirm';
+
+INSERT INTO `email_template` (`id`, `template_name`, `template_subject`, `template_from`, `template_from_mail`, `template_html`, `template_variables`, `deleted_at`, `created_at`, `updated_at`) VALUES ('72', 'Influencer Code used', 'Your influencer code has been used', 'Admin-##project_name##', 'admin@vr.com', '<p>Hello ##INFLUENCER_NAME##,</p>\r\n<p>Greetings!!</p>\r\n<p>&nbsp;</p>\r\n<p>Your influencer code ##INFLUENCER_CODE##&nbsp; has been used to make this purchase.</p>\r\n<p>To enquire more about the above quote, please contact our ##PROJECT_NAME## team.</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks and Regards,</p>\r\n<p>&nbsp;</p>\r\n<p>##PROJECT_NAME## Team</p>', '####INFLUENCER_CODE## ##PRODUCT_NAME## ##BRAND_NAME## ##PROJECT_NAME####', NULL, NULL, NULL);
+
+--------------------01-10-2021-----------
+CREATE TABLE `rejoiz`.`visitors_enquiry` ( `id` INT(10) NULL AUTO_INCREMENT , `name` VARCHAR(255) NULL DEFAULT NULL , `mobile_no` VARCHAR(100) NULL DEFAULT NULL , `type` VARCHAR(100) NULL DEFAULT NULL , `created_at` TIMESTAMP NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+--------------------05-10-2021-----------
+
+
+ALTER TABLE `visitors_enquiry` CHANGE `mobile_no` `mobile_no` VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+
+ALTER TABLE `category` ADD `priority` VARCHAR(10) NOT NULL DEFAULT '0' AFTER `reject_reason`;
+
+-------------------06-10-2021-------------
+
+UPDATE retailer_transaction set `maker_confirmation` = 0 where `maker_confirmation` is null
+
+ALTER TABLE `retailer_transaction` CHANGE `maker_confirmation` `maker_confirmation` TINYINT(1) NOT NULL DEFAULT '0' COMMENT '0=>not confirmed,1=>confirm';
+
+UPDATE retailer_transaction set `maker_confirmation` = 0 where `maker_confirmation` is null
+
+ALTER TABLE `retailer_transaction` CHANGE `maker_confirmation` `maker_confirmation` TINYINT(1) NOT NULL DEFAULT '0' COMMENT '0=>not confirmed,1=>confirm';
+
+-----------07-10-2021-----------
+
+UPDATE `email_template` SET `template_variables` = '####INFLUENCER_CODE## ##PRODUCT_NAME## ##BRAND_NAME## ##ORDER_NO## ##PROJECT_NAME####' WHERE `email_template`.`id` = 72;
+
+-------------------------------------------
+
+ALTER TABLE `product_sizes`  ADD `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP  AFTER `updated_at`,  ADD `updated_at` TIMESTAMP NULL DEFAULT NULL  AFTER `created_at`;
+
+
+----------13-10-2021--------------
+
+ALTER TABLE `product_sizes`  ADD `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP  AFTER `size_inventory`,  ADD `updated_at` TIMESTAMP NULL DEFAULT NULL  AFTER `created_at`;
+
+
+ALTER TABLE `product_sizes` CHANGE `updated_at` `updated_at` TIMESTAMP on update CURRENT_TIMESTAMP NULL DEFAULT NULL;
+
+----------14-10-2021--------------
+
+ALTER TABLE `retailer_transaction_detail` ADD `color` VARCHAR(50) NULL DEFAULT NULL AFTER `sku_no`, ADD `size_id` INT(11) NOT NULL AFTER `color`;
+
+
